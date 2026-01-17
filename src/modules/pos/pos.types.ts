@@ -26,3 +26,10 @@ export interface CartItem {
   stockDisponible?: number
   stockInsuficiente?: boolean
 }
+
+export interface ProductoPOS {
+  _id: string
+  nombre: string
+  precio: number
+  activo: boolean
+}

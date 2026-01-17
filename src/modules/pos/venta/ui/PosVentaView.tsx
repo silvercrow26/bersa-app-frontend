@@ -12,7 +12,7 @@ import SeleccionarTipoPagoModal from '../../Cobro/ui/SeleccionarTipoPagoModal'
 /* ===============================
    Types
 =============================== */
-import type { CartItem } from '../../pos.types'
+import type { CartItem, ProductoPOS } from '../../pos.types'
 
 /**
  * Props de PosVentaView
@@ -28,7 +28,7 @@ export interface PosVentaViewProps {
      Scanner
   =============================== */
   scannerRef: React.RefObject<HTMLInputElement | null>
-  onAddProduct: (producto: any) => void
+  onAddProduct: (producto: ProductoPOS) => void
   onFocusScanner: () => void
 
   /* ===============================
@@ -36,7 +36,7 @@ export interface PosVentaViewProps {
   =============================== */
   query: string
   onChangeQuery: (value: string) => void
-  productos: any[]
+  productos: ProductoPOS[]
   stockMap: Record<string, number>
   loadingProductos: boolean
 
@@ -171,11 +171,10 @@ export default function PosVentaView({
                     if (bloqueado) return
                     onCobrar()
                   }}
-                  className={`mt-4 w-full py-2 rounded text-white transition ${
-                    bloqueado
+                  className={`mt-4 w-full py-2 rounded text-white transition ${bloqueado
                       ? 'bg-gray-500 cursor-not-allowed'
                       : 'bg-emerald-600 hover:bg-emerald-700'
-                  }`}
+                    }`}
                 >
                   {cargandoCaja
                     ? 'Validando caja…'
