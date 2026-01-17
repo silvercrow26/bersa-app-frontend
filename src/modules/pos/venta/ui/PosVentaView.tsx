@@ -12,6 +12,7 @@ import SeleccionarTipoPagoModal from '../../Cobro/ui/SeleccionarTipoPagoModal'
 /* ===============================
    Types
 =============================== */
+import type { CartItem } from '../../pos.types'
 
 /**
  * Props de PosVentaView
@@ -42,7 +43,7 @@ export interface PosVentaViewProps {
   /* ===============================
      Venta / Carrito
   =============================== */
-  cart: any[]
+  cart: CartItem[]          // ✅ AQUÍ ESTÁ EL CAMBIO
   onIncrease: (productoId: string) => void
   onDecrease: (productoId: string) => void
   total: number
