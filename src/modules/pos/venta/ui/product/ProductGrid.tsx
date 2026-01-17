@@ -1,22 +1,16 @@
 import { memo, useCallback } from 'react'
 import ProductCard from './ProductCard'
-
-export interface ProductoGridItem {
-  _id: string
-  nombre: string
-  precio: number
-  activo: boolean
-}
+import type { ProductoPOS } from '@/modules/pos/pos.types'
 
 interface Props {
-  productos: ProductoGridItem[]
+  productos: ProductoPOS[]
   stockMap: Record<string, number>
   loading: boolean
 
   /**
    * Acción de dominio (estable desde PosPage)
    */
-  onAddProduct: (producto: ProductoGridItem) => void
+  onAddProduct: (producto: ProductoPOS) => void
 
   /**
    * Acción UX (focus scanner)
@@ -56,7 +50,7 @@ function ProductGrid({
      - mantiene memo del Card
   =============================== */
   const handleAdd = useCallback(
-    (producto: ProductoGridItem) => {
+    (producto: ProductoPOS) => {
       onAddProduct(producto)
       onAnyClick?.()
     },
