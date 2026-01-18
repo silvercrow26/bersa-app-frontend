@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import BarraCajaActiva from './Caja/ui/modals/BarraCajaActiva'
-import SeleccionarCajaModal from './Caja/ui/modals/SeleccionarCajaModal'
-import AbrirCajaModal from './Caja/ui/modals/AbrirCajaModal'
+import SeleccionarCajaModal from './Caja/ui/SeleccionarCajaContenido'
 import CerrarCajaModal from './Caja/ui/modals/CerrarCajaModal'
 import { useAuth } from '../auth/useAuth';
 
@@ -27,7 +26,6 @@ export default function PosShell() {
         <BarraCajaActiva />
         <Outlet />
         <SeleccionarCajaModal />
-        <AbrirCajaModal />
         <CerrarCajaModal />
       </div>
   )

@@ -59,6 +59,7 @@ interface CajaContextValue {
 
   /* Acciones principales */
   seleccionarCaja: (caja: Caja) => Promise<void>
+  deseleccionarCaja: () => void
   abrirCaja: (montoInicial: number) => Promise<void>
 
   /* Cierre */
@@ -211,6 +212,15 @@ export function CajaProvider({ children }: CajaProviderProps) {
     []
   )
 
+ /* =====================================================
+     DESELECCIONAR CAJA
+     - Sirve para volver atras
+  ===================================================== */
+  const deseleccionarCaja = useCallback(() => {
+  setCajaSeleccionada(null)
+  setAperturaActiva(null)
+}, [])
+
   /* =====================================================
      ABRIR CAJA
   ===================================================== */
@@ -328,6 +338,7 @@ export function CajaProvider({ children }: CajaProviderProps) {
       error,
 
       seleccionarCaja,
+      deseleccionarCaja,
       abrirCaja,
 
       iniciarCierre,
@@ -347,6 +358,7 @@ export function CajaProvider({ children }: CajaProviderProps) {
       closingCaja,
       error,
       seleccionarCaja,
+      deseleccionarCaja,
       abrirCaja,
       iniciarCierre,
       confirmarCierre,
