@@ -1,6 +1,6 @@
 import { api } from '@/shared/api/api'
 import type { PagoPOS } from './pos.types'
-import type { Producto } from '@/shared/types/producto.types'
+import type { Producto } from '@/shared/producto/producto.types'
 import type { StockProducto } from '@/shared/types/stock.types'
 
 /* ================================

@@ -1,6 +1,6 @@
 // shared/types/producto.types.ts
 
-import type { Proveedor } from './proveedor.types'
+import type { Proveedor } from "../types/stock.types"
 
 export interface Producto {
   _id: string

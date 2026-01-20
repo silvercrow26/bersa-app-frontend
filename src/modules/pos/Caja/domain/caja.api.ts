@@ -124,7 +124,7 @@ export async function cerrarCajaAutomatico(params: {
   montoFinal: number
 }) {
   await api.post(
-    `/cajas/${params.cajaId}/cerrar-automatico`,
+    `/cajas/${params.cajaId}/cierre`,
     {
       montoFinal: params.montoFinal,
     }

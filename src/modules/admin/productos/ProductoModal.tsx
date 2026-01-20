@@ -1,5 +1,5 @@
-import type { Producto } from '@/shared/types/producto.types'
 import ProductoForm from './ProductoForm'
+import type { Producto } from '@/shared/producto/producto.types';
 
 type Props = {
   open: boolean

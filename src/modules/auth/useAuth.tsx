@@ -14,9 +14,17 @@ import {
 } from './auth.api'
 import { setAuthSnapshot } from './auth.snapshot'
 
+/* ================================
+   Tipos del contexto
+================================ */
+
 interface AuthContextValue {
   user: User | null
   loading: boolean
+
+  // 👇 NUEVO: expuesto de forma directa
+  sucursalId: string | null
+
   login: (email: string, password: string) => Promise<User>
   logout: () => Promise<void>
 }
@@ -35,6 +43,9 @@ export function AuthProvider({
   )
   const [loading, setLoading] = useState(true)
 
+  /* -------------------------------
+     Snapshot (NO TOCAR)
+  -------------------------------- */
   useEffect(() => {
     setAuthSnapshot(user)
   }, [user])
@@ -90,11 +101,19 @@ export function AuthProvider({
     window.location.href = '/login'
   }
 
+  /* ================================
+     Provider
+  ================================ */
+
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
+
+        // 👇 NUEVO: derivado del user
+        sucursalId: user?.sucursalId ?? null,
+
         login,
         logout,
       }}

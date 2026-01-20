@@ -3,11 +3,17 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
+
 import { api } from '@/shared/api/api'
 import { useAuth } from '@/modules/auth/useAuth'
-import {
-  registerCajaRealtimeHandler,
-} from '../caja.realtime'
+
+/* ===============================
+   Realtime (SSE global)
+   - NO conecta
+   - SOLO se suscribe
+=============================== */
+import { realtimeClient } from '@/shared/realtime/realtime.client'
+import type { RealtimeEvent } from '@/shared/realtime/realtime.events'
 
 /* =====================================================
    Tipo UI
@@ -66,22 +72,30 @@ export function useCajasDisponibles() {
     refetchOnWindowFocus: false,
   })
 
-  /* -------------------------------
+  /* =====================================================
      Realtime
+     - Escucha eventos de caja
      - SOLO invalida cache
-  -------------------------------- */
+     - NO abre conexión
+  ===================================================== */
   useEffect(() => {
     if (!sucursalId) return
 
-    const unregister =
-      registerCajaRealtimeHandler(() => {
+    return realtimeClient.registerHandler(
+      (event: RealtimeEvent) => {
+        if (
+          event.type !== 'CAJA_ABIERTA' &&
+          event.type !== 'CAJA_CERRADA'
+        ) {
+          return
+        }
+
         queryClient.invalidateQueries({
           queryKey:
             CAJAS_DISPONIBLES_QUERY_KEY(sucursalId),
         })
-      })
-
-    return unregister
+      }
+    )
   }, [sucursalId, queryClient])
 
   return {

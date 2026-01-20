@@ -1,9 +1,9 @@
-import { api } from "./api"
+import { api } from "@/shared/api/api"
 import type {
   Producto,
   CreateProductoDTO,
   UpdateProductoDTO,
-} from '../types/producto.types'
+} from '../producto.types'
 
 // POS (solo activos)
 export const getProductosPOS = async (): Promise<Producto[]> => {

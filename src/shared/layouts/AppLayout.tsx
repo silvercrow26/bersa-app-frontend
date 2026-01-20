@@ -1,10 +1,22 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import { useEffect } from 'react'
+import { Outlet } from 'react-router-dom'
+
+import Sidebar from '../components/Sidebar'
+import Header from '../components/Header'
+
+import { realtimeClient } from '@/shared/realtime/realtime.client'
 
 export default function AppLayout() {
+  useEffect(() => {
+    realtimeClient.connect()
+
+    return () => {
+      realtimeClient.disconnect()
+    }
+  }, [])
+
   return (
-     <div className="flex h-screen bg-slate-900 text-slate-100">
+    <div className="flex h-screen bg-slate-900 text-slate-100">
       <Sidebar />
 
       <div className="flex flex-col flex-1 min-w-0">
@@ -15,5 +27,5 @@ export default function AppLayout() {
         </main>
       </div>
     </div>
-  );
+  )
 }

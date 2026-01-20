@@ -1,9 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  getProductosPOS,
-  getProductosAdmin,
-} from '../api/producto.api'
-import type { Producto } from '@/shared/types/producto.types'
+import type { Producto } from '../producto/producto.types'
+import { getProductosPOS, getProductosAdmin } from '../producto/api/producto.api';
 
 /**
  * Productos visibles en POS (solo activos)

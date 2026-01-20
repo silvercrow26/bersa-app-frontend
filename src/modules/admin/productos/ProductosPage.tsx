@@ -2,11 +2,9 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/useAuth'
-import type { Producto } from '@/shared/types/producto.types'
+import type { Producto } from '@/shared/producto/producto.types'
+import { setProductoActivo } from '@/shared/producto/api/producto.api';
 
-import {
-  setProductoActivo,
-} from '@/shared/api/producto.api'
 
 import { useProductosAdmin } from '@/shared/queries/useProductos'
 

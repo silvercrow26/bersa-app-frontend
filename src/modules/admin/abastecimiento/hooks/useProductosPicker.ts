@@ -1,6 +1,6 @@
 import { useProductosAdmin } from '@/shared/queries/useProductos'
 import { useStockSucursal } from '@/shared/hooks/useStockSucursal'
-import type { Producto } from '@/shared/types/producto.types'
+import type { Producto } from '@/shared/producto/producto.types'
 
 export interface ProductoPickerItem {
   id: string

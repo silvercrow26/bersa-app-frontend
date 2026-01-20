@@ -4,8 +4,11 @@ import { useCaja } from './Caja/context/CajaProvider'
 import PosLock from './Caja/ui/PosLock'
 import SeleccionarCajaContenido from './Caja/ui/SeleccionarCajaContenido'
 import AbrirCajaContenido from './Caja/ui/AbrirCajaContenido'
+import { useCatalogoRealtime } from './realtime/catalogo.realtime'
 
 export default function PosPage() {
+  
+  useCatalogoRealtime()
   const pos = usePosController()
   const { cajaSeleccionada, aperturaActiva } = useCaja()
 

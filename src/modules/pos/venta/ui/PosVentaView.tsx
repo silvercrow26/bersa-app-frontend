@@ -1,17 +1,26 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback } from 'react'
 
-/* ===============================
+/* =====================================================
    UI POS – Vista de Venta
-=============================== */
+===================================================== */
+
+/* ---------- Producto ---------- */
 import ProductGrid from './product/ProductGrid'
+import ProductoSearchInput from '@/shared/producto/ui/ProductoSearchInput'
+
+/* ---------- Carrito ---------- */
 import Cart from './cart/Cart'
+
+/* ---------- Scanner ---------- */
 import ProductScanner from './scanner/ProductScanner'
+
+/* ---------- Cobro ---------- */
 import PaymentModal from '../../Cobro/ui/PaymentModal'
 import SeleccionarTipoPagoModal from '../../Cobro/ui/SeleccionarTipoPagoModal'
 
-/* ===============================
+/* =====================================================
    Types
-=============================== */
+===================================================== */
 import type { CartItem, ProductoPOS } from '../../pos.types'
 
 export interface PosVentaViewProps {
@@ -23,7 +32,7 @@ export interface PosVentaViewProps {
   onFocusScanner: () => void
 
   /* ===============================
-     Productos
+     Productos / Búsqueda
   =============================== */
   query: string
   onChangeQuery: (value: string) => void
@@ -63,6 +72,20 @@ export interface PosVentaViewProps {
   }
 }
 
+/**
+ * PosVentaView
+ *
+ * Vista principal del POS.
+ *
+ * REGLAS IMPORTANTES:
+ * - El input de búsqueda es CONTROLADO por el POS
+ * - El POS decide cuándo se limpia el input
+ * - Al hacer click en una card:
+ *    → se agrega el producto
+ *    → se limpia la búsqueda
+ * - El scanner no se toca
+ * - El grid no se desmonta nunca
+ */
 function PosVentaView({
   scannerRef,
   onAddProduct,
@@ -85,10 +108,25 @@ function PosVentaView({
 
   cobro,
 }: PosVentaViewProps) {
+  /* =====================================================
+     Handler INTERMEDIO para agregar producto desde el grid
+     - Agrega el producto
+     - Limpia la búsqueda
+     - Devuelve el foco al scanner
+  ===================================================== */
+  const handleAddProductFromGrid = useCallback(
+    (producto: ProductoPOS) => {
+      onAddProduct(producto)
+      onChangeQuery('') // ← LIMPIA EL INPUT
+      onFocusScanner()
+    },
+    [onAddProduct, onChangeQuery, onFocusScanner]
+  )
+
   return (
     <>
       {/* ===============================
-          Scanner
+          Scanner (siempre activo)
       =============================== */}
       <ProductScanner
         scannerRef={scannerRef}
@@ -111,21 +149,21 @@ function PosVentaView({
                 Productos
             =============================== */}
             <div className="col-span-2 space-y-4">
-              <input
+              {/* ---------- Búsqueda ---------- */}
+              <ProductoSearchInput
+                autoFocus
                 placeholder="Buscar producto..."
                 value={query}
-                onChange={e =>
-                  onChangeQuery(e.target.value)
-                }
-                className="w-full bg-slate-800 p-2 rounded text-slate-100"
+                onChange={onChangeQuery}
+                className="w-full px-4 py-3 text-base"
               />
 
+              {/* ---------- Grid ---------- */}
               <ProductGrid
                 productos={productos}
                 stockMap={stockMap}
                 loading={loadingProductos}
-                onAddProduct={onAddProduct}
-                onAnyClick={onFocusScanner}
+                onAddProduct={handleAddProductFromGrid}
               />
             </div>
 
@@ -148,11 +186,10 @@ function PosVentaView({
                     if (bloqueado) return
                     onCobrar()
                   }}
-                  className={`mt-4 w-full py-2 rounded text-white transition ${
-                    bloqueado
+                  className={`mt-4 w-full py-2 rounded text-white transition ${bloqueado
                       ? 'bg-gray-500 cursor-not-allowed'
                       : 'bg-emerald-600 hover:bg-emerald-700'
-                  }`}
+                    }`}
                 >
                   {cargandoCaja
                     ? 'Validando caja…'

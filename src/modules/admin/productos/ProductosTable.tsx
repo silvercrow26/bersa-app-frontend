@@ -1,4 +1,4 @@
-import type { Producto } from '@/shared/types/producto.types'
+import type { Producto } from '@/shared/producto/producto.types'
 
 type Props = {
   productos: Producto[]

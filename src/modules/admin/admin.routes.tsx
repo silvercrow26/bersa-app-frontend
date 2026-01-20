@@ -4,7 +4,7 @@ import RoleRoute from "@/shared/layouts/RoleRoute";
 
 import CategoriasPage from "./categorias/CategoriasPage";
 import ProductosPage from "./productos/ProductosPage";
-import StockPage from "./stock/StockPage";
+import StockPage from "./stock/ui/StockPage";
 import ProveedoresPage from "./proveedores/ProveedoresPage";
 import AbastecimientoPage from "./abastecimiento/AbastecimientoPage";
 

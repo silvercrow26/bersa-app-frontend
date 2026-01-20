@@ -5,14 +5,14 @@ import type {
   Producto,
   CreateProductoDTO,
   UpdateProductoDTO,
-} from '@/shared/types/producto.types'
+} from '@/shared/producto/producto.types'
 import type { Categoria } from '@/shared/types/categoria.types'
 import type { Proveedor } from '@/shared/types/proveedor.types'
 
 import {
   createProducto,
   updateProducto,
-} from '@/shared/api/producto.api'
+} from '@/shared/producto/api/producto.api'
 import { getCategoriasAdmin } from '@/shared/api/categoria.api'
 import { api } from '@/shared/api/api'
 

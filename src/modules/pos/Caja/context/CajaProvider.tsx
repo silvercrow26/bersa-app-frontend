@@ -21,13 +21,11 @@ import {
 } from '../domain/caja.api'
 
 /* =====================================================
-   Realtime (SSE)
+   Realtime (SSE global)
 ===================================================== */
-import {
-  connectCajaRealtime,
-  registerCajaRealtimeHandler,
-} from '../caja.realtime'
+import { realtimeClient } from '@/shared/realtime/realtime.client'
 import type { RealtimeEvent } from '@/shared/realtime/realtime.events'
+import { useAuth } from '@/modules/auth/useAuth'
 
 /* =====================================================
    Tipos UI
@@ -80,6 +78,8 @@ const CAJA_STORAGE_KEY = 'bersa:cajaSeleccionada'
    Provider
 ===================================================== */
 export function CajaProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth()
+
   /* -------------------- Estado base -------------------- */
   const [cajaSeleccionada, setCajaSeleccionada] =
     useState<Caja | null>(null)
@@ -99,7 +99,7 @@ export function CajaProvider({ children }: { children: ReactNode }) {
     useState<ResumenPrevioCaja | null>(null)
   const [montoFinal, setMontoFinal] = useState('')
 
-  /* -------------------- Ref para SSE -------------------- */
+  /* -------------------- Ref segura -------------------- */
   const cajaRef = useRef<Caja | null>(null)
 
   useEffect(() => {
@@ -133,23 +133,32 @@ export function CajaProvider({ children }: { children: ReactNode }) {
   }, [])
 
   /* =====================================================
-     SSE
+     SSE – solo suscripción (NO conexión)
   ===================================================== */
   useEffect(() => {
-    registerCajaRealtimeHandler((event: RealtimeEvent) => {
-      const caja = cajaRef.current
-      if (!caja) return
+    return realtimeClient.registerHandler(
+      (event: RealtimeEvent) => {
+        const caja = cajaRef.current
+        if (!caja) return
 
-      if (
-        event.type === 'CAJA_CERRADA' &&
-        event.cajaId === caja.id
-      ) {
-        resetCajaLocal()
+        // Ignorar eventos propios
+        if (
+          event.origenUsuarioId &&
+          event.origenUsuarioId === user?._id
+        ) {
+          return
+        }
+
+        // Cierre remoto de caja
+        if (
+          event.type === 'CAJA_CERRADA' &&
+          event.cajaId === caja.id
+        ) {
+          resetCajaLocal()
+        }
       }
-    })
-
-    connectCajaRealtime()
-  }, [resetCajaLocal])
+    )
+  }, [resetCajaLocal, user?._id])
 
   /* =====================================================
      RESTORE DESDE LOCALSTORAGE
@@ -190,23 +199,26 @@ export function CajaProvider({ children }: { children: ReactNode }) {
   /* =====================================================
      Acciones
   ===================================================== */
-  const seleccionarCaja = useCallback(async (caja: Caja) => {
-    setValidandoCaja(true)
-    setError(undefined)
+  const seleccionarCaja = useCallback(
+    async (caja: Caja) => {
+      setValidandoCaja(true)
+      setError(undefined)
 
-    try {
-      const apertura = await getAperturaActiva(caja.id)
+      try {
+        const apertura = await getAperturaActiva(caja.id)
 
-      setCajaSeleccionada(caja)
-      setAperturaActiva(apertura)
-      persistCaja(caja)
-    } catch {
-      resetCajaLocal()
-      setError('No se pudo seleccionar la caja')
-    } finally {
-      setValidandoCaja(false)
-    }
-  }, [resetCajaLocal])
+        setCajaSeleccionada(caja)
+        setAperturaActiva(apertura)
+        persistCaja(caja)
+      } catch {
+        resetCajaLocal()
+        setError('No se pudo seleccionar la caja')
+      } finally {
+        setValidandoCaja(false)
+      }
+    },
+    [resetCajaLocal]
+  )
 
   const deseleccionarCaja = useCallback(() => {
     resetCajaLocal()
