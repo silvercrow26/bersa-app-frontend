@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { realtimeClient } from '@/shared/realtime/realtime.client'
-import type { RealtimeEvent } from '@/shared/realtime/realtime.events'
+import type { RealtimeEvent } from '../realtime/realtime.types'
 import { useAuth } from '@/modules/auth/useAuth'
 
 /**

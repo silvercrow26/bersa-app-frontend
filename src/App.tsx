@@ -8,6 +8,7 @@ import { PosRoutes } from '@/modules/pos/pos.routes'
 import { AdminRoutes } from '@/modules/admin/admin.routes'
 
 import { RealtimeProvider } from './providers/RealtimeProvider'
+import { ToastProvider } from '@/shared/ui/toast/ToastProvider'
 
 /**
  * =====================================================
@@ -21,25 +22,33 @@ import { RealtimeProvider } from './providers/RealtimeProvider'
 export default function App() {
   return (
     <RealtimeProvider>
-      <Routes>
-        {/* público */}
-        <Route path="/login" element={<LoginPage />} />
+      <ToastProvider>
+        <Routes>
+          {/* público */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* protegido */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          {PosRoutes}
-          {AdminRoutes}
-          <Route path="/" element={<Navigate to="/pos" replace />} />
-        </Route>
+          {/* protegido */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            {PosRoutes}
+            {AdminRoutes}
+            <Route
+              path="/"
+              element={<Navigate to="/pos" replace />}
+            />
+          </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
+        </Routes>
+      </ToastProvider>
     </RealtimeProvider>
   )
 }
