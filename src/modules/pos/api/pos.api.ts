@@ -1,97 +1,10 @@
 import { api } from '@/shared/api/api'
 
 /* =====================================================
-   Tipos POS
-===================================================== */
-
-import type { PagoPOS } from '../domain/pos.types'
-import type { Producto } from '@/shared/producto/producto.types'
-import type { StockProducto } from '@/shared/types/stock.types'
-import type {
-  VentaDetalle,
-  DocumentoTributario,
-} from '../../../domains/venta/domain/venta.types'
-
-/* =====================================================
-   Ventas POS
-===================================================== */
-
-/**
- * Payload para crear una venta desde el POS
- */
-export interface CrearVentaPOSPayload {
-  cajaId: string
-  aperturaCajaId: string
-
-  items: {
-    productoId: string
-    cantidad: number
-    precioUnitario: number
-  }[]
-
-  pagos: PagoPOS[]
-
-  documentoTributario: DocumentoTributario
-}
-
-/**
- * Crea una venta desde el POS
- */
-export async function crearVentaPOS(
-  payload: CrearVentaPOSPayload
-) {
-  const { data } = await api.post(
-    '/ventas',
-    payload
-  )
-  return data
-}
-
-/**
- * Anula una venta POS
- */
-export async function anularVentaPOSApi(
-  ventaId: string
-) {
-  const { data } = await api.post(
-    `/ventas/${ventaId}/anular`
-  )
-  return data
-}
-
-/**
- * Obtiene el detalle completo de una venta
- * (items + pagos)
- */
-export async function getVentaDetalle(
-  ventaId: string
-): Promise<VentaDetalle> {
-  const { data } = await api.get(
-    `/ventas/${ventaId}/detalle`
-  )
-  return data
-}
-
-/* =====================================================
-   Ventas por Apertura (Resumen de Caja)
-===================================================== */
-
-/**
- * Obtiene todas las ventas del turno activo
- * de una caja
- */
-export async function getVentasApertura(
-  cajaId: string
-) {
-  const { data } = await api.get(
-    `/cajas/${cajaId}/ventas-apertura`
-  )
-  return data
-}
-
-/* =====================================================
    Productos (POS)
 ===================================================== */
+
+import type { Producto } from '@/shared/producto/producto.types'
 
 /**
  * Busca un producto por código de barras.
@@ -221,6 +134,8 @@ export async function getCorteCajeros(
 /* =====================================================
    Stock (POS convenience)
 ===================================================== */
+
+import type { StockProducto } from '@/shared/types/stock.types'
 
 /**
  * Obtiene stock por sucursal.

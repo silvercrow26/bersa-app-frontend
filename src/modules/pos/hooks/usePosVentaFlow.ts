@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
-import { crearVentaPOS } from '../api/pos.api'
+import { crearVentaPOS } from '@/domains/venta/api/venta.api'
 import { useVenta } from '../../../domains/venta/hooks/useVenta'
 import { usePostVenta } from '../../../domains/venta/hooks/usePostVenta'
 import { useCaja } from '../Caja/context/CajaProvider'
