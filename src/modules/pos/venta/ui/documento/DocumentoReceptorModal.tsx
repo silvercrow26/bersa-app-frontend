@@ -8,7 +8,7 @@ import {
 
 import type {
   DocumentoReceptor,
-} from '../../domain/venta.types'
+} from '../../../../../domains/venta/domain/venta.types'
 
 /* =====================================================
    Helpers RUT

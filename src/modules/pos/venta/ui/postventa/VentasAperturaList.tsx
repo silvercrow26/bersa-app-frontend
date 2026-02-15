@@ -1,4 +1,4 @@
-import type { VentaApertura } from "../../domain/venta.types"
+import type { VentaApertura } from "../../../../../domains/venta/domain/venta.types"
 
 /* =====================================================
    Props

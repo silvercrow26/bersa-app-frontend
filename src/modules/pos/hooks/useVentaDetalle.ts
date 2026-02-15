@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getVentaDetalle } from '../api/pos.api'
-import type { VentaDetalle } from '../venta/domain/venta.types'
+import type { VentaDetalle } from '../../../domains/venta/domain/venta.types'
 
 /**
  * Obtiene el detalle de una venta

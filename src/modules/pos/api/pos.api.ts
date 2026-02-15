@@ -10,7 +10,7 @@ import type { StockProducto } from '@/shared/types/stock.types'
 import type {
   VentaDetalle,
   DocumentoTributario,
-} from '../venta/domain/venta.types'
+} from '../../../domains/venta/domain/venta.types'
 
 /* =====================================================
    Ventas POS

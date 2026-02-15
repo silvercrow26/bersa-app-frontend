@@ -7,7 +7,7 @@ import { useVentasApertura } from '@/domains/venta/hooks/useVentasApertura'
 import { VentasAperturaList } from '@/modules/pos/venta/ui/postventa/VentasAperturaList'
 import { VentaDetallePanel } from '@/modules/pos/venta/ui/postventa/VentaDetallePanel'
 
-import type { VentaApertura } from '@/modules/pos/venta/domain/venta.types'
+import type { VentaApertura } from '@/domains/venta/domain/venta.types'
 
 /* =====================================================
    Props

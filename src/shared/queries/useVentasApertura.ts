@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getVentasApertura } from '@/modules/pos/api/pos.api'
-import type { VentaApertura } from '@/modules/pos/venta/domain/venta.types'
+import type { VentaApertura } from '@/domains/venta/domain/venta.types'
 
 export function useVentasAperturaQuery(cajaId?: string) {
   return useQuery<VentaApertura[]>({

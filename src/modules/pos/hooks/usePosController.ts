@@ -6,7 +6,7 @@ import { usePosScanner } from './usePosScanner'
 import { usePosVentaFlow } from './usePosVentaFlow'
 import { usePosCobroFlow } from './usePosCobroFlow'
 
-import type { DocumentoReceptor } from '../venta/domain/venta.types'
+import type { DocumentoReceptor } from '../../../domains/venta/domain/venta.types'
 
 /* =======================================================
    POS CONTROLLER
