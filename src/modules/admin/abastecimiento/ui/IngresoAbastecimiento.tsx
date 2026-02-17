@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-import { useProductosAdmin } from '@/shared/queries/useProductos'
-import { useProductoFilter } from '@/shared/producto/hooks/useProductoFilter'
-import ProductoSearchInput from '@/shared/producto/ui/ProductoSearchInput'
+import { useProductosAdmin } from '@/domains/producto/hooks/useProductos'
+import { useProductoFilter } from '@/domains/producto/hooks/useProductoFilter'
+import ProductoSearchInput from '@/domains/producto/ui/ProductoSearchInput'
 
 import { useAbastecimiento } from '../hooks/useAbastecimiento'
 import { AbastecimientoItems } from './AbastecimientoItems'

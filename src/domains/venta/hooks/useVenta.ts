@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { CartItem } from '../../../modules/pos/domain/pos.types'
+import type { CartItem } from '../domain/cart-item.types'
 import type {
   ProductoVendible,
   DocumentoTributario,

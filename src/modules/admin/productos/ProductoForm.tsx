@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import type{ Producto } from '@/domains/producto/domain/producto.types'
 import type {
-  Producto,
   CreateProductoDTO,
   UpdateProductoDTO,
-} from '@/shared/producto/producto.types'
+} from '@/domains/producto/api/producto.contracts'
 import type { Categoria } from '@/shared/types/categoria.types'
 import type { Proveedor } from '@/shared/types/proveedor.types'
+
 
 import {
   createProducto,
   updateProducto,
-} from '@/shared/producto/api/producto.api'
+} from '@/domains/producto/api/producto.api'
 import { getCategoriasAdmin } from '@/shared/api/categoria.api'
 import { api } from '@/shared/api/api'
 
@@ -89,7 +90,7 @@ export default function ProductoForm({ producto, onSaved }: Props) {
           proveedorId: proveedorId || undefined,
         }
 
-        return updateProducto(producto._id, payload)
+        return updateProducto(producto.id, payload)
       }
 
       const payload: CreateProductoDTO = {
@@ -139,11 +140,7 @@ export default function ProductoForm({ producto, onSaved }: Props) {
     setCodigo(producto.codigo ?? '')
     setUnidadBase(producto.unidadBase)
     setCategoriaId(producto.categoriaId ?? '')
-    setProveedorId(
-      typeof producto.proveedorId === 'string'
-        ? producto.proveedorId
-        : producto.proveedorId?._id ?? ''
-    )
+    setProveedorId(producto.proveedorId ?? '')
   }, [producto])
 
   /* =====================================================

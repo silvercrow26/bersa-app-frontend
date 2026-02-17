@@ -1,8 +1,25 @@
-import { useVentasAperturaQuery } from "@/shared/queries/useVentasApertura"
-import { useAnularVentaMutation } from '@/domains/venta/hooks/useAnularVentaMutation'
+import { useQuery } from '@tanstack/react-query'
+import { getVentasApertura } from '../api/venta.api'
+import type { VentaApertura } from '../domain/venta.types'
+import { useAnularVentaMutation } from './useAnularVentaMutation'
 
 export function useVentasApertura(cajaId?: string) {
-  const ventasQuery = useVentasAperturaQuery(cajaId)
+
+  const ventasQuery = useQuery<VentaApertura[]>({
+    queryKey: ['ventas-apertura', cajaId],
+
+    queryFn: async () => {
+      if (!cajaId) return []
+      const data = await getVentasApertura(cajaId)
+      return data.ventas ?? []
+    },
+
+    enabled: !!cajaId,
+
+    placeholderData: previousData => previousData,
+    staleTime: 2000,
+  })
+
   const anularMutation = useAnularVentaMutation()
 
   return {

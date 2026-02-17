@@ -1,6 +1,9 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
+
 import { useScanProduct } from './useScanProduct'
 import { useScannerToast } from './useScannerToast'
+
+import type { Producto } from '@/domains/producto/domain/producto.types'
 
 /* =====================================================
    Hook debounce simple
@@ -26,15 +29,7 @@ function useScannerDebounce(delay = 150) {
 ===================================================== */
 
 interface Props {
-  onAddProduct: (producto: {
-    _id: string
-    nombre: string
-    precio: number
-    codigo?: string
-    activo: boolean
-    categoriaId?: string
-  }) => void
-
+  onAddProduct: (producto: Producto) => void
   scannerRef: React.RefObject<HTMLInputElement | null>
 }
 

@@ -1,8 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import CartItemRow from './CartItemRow';
+
+import CartItemRow from './CartItemRow'
 import ConfirmModal from '@/shared/ui/ConfirmModal'
-import type { CartItem } from '../../domain/pos.types'
-import { useCartSummary } from './useCartSummary';
+
+import type { CartItem } from '@/domains/venta/domain/cart-item.types'
+import { useCartSummary } from './useCartSummary'
 
 interface Props {
   items: CartItem[]
@@ -51,7 +53,8 @@ function Cart({
      Confirm modal state
   =============================== */
 
-  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] =
+    useState(false)
 
   const openConfirm = useCallback(() => {
     if (!onClear) return
@@ -67,6 +70,10 @@ function Cart({
     onClear()
     setConfirmOpen(false)
   }, [onClear])
+
+  /* ===============================
+     Render
+  =============================== */
 
   return (
     <>
@@ -119,7 +126,9 @@ function Cart({
             <CartItemRow
               key={item.productoId}
               item={item}
-              highlighted={item.productoId === highlightedId}
+              highlighted={
+                item.productoId === highlightedId
+              }
               onIncrease={onIncrease}
               onDecrease={onDecrease}
               onUserAction={onUserAction}

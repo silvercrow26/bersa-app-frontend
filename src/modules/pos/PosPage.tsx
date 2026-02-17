@@ -1,7 +1,7 @@
 /* ===============================
    Infra
 =============================== */
-import { useCatalogoRealtime } from './realtime/catalogo.realtime'
+import { useProductoRealtime } from '@/domains/producto/realtime/useProductoRealtime'
 
 /* ===============================
    Controllers
@@ -32,7 +32,7 @@ export default function PosPage() {
   /* ===============================
      Realtime catálogo
   =============================== */
-  useCatalogoRealtime()
+  useProductoRealtime()
 
   /* ===============================
      Controller principal POS
@@ -42,7 +42,10 @@ export default function PosPage() {
   /* ===============================
      Estado de Caja
   =============================== */
-  const { cajaSeleccionada, aperturaActiva } = useCaja()
+  const {
+    cajaSeleccionada,
+    aperturaActiva,
+  } = useCaja()
 
   const showLock =
     !cajaSeleccionada || !aperturaActiva
@@ -51,23 +54,39 @@ export default function PosPage() {
      SHORTCUTS TECLADO
   ======================================================= */
 
-usePosShortcuts({
-  mode: pos.showReceptor
-    ? null
-    : pos.cobro.showPayment
-    ? 'PAGO'
-    : pos.cobro.showTipoPago
-    ? 'TIPO_PAGO'
-    : 'VENTA',
+  usePosShortcuts({
+    mode: pos.showReceptor
+      ? null
+      : pos.pago.showPayment
+      ? 'PAGO'
+      : pos.pago.showTipoPago
+      ? 'TIPO_PAGO'
+      : 'VENTA',
 
-  onCobrar: pos.onCobrar,
-  onIncreaseLast: pos.increaseLast,
-  onDecreaseLast: pos.decreaseLast,
+    /* =======================
+       VENTA
+    ======================= */
+    onCobrar: pos.onCobrar,
+    onIncreaseLast: pos.increaseLast,
+    onDecreaseLast: pos.decreaseLast,
 
-  onSelectTipoPago: pos.cobro.selectTipoPago,
-  onConfirmPago: pos.cobro.confirm,
-  onBack: pos.cobro.closeAll,
-})
+    /* =======================
+       TIPO PAGO
+    ======================= */
+    onSelectTipoPago: pos.pago.selectTipoPago,
+
+    /* =======================
+       PAGO
+    ======================= */
+    onConfirmPago: pos.pago.confirm,
+    onAddMontoRapido: pos.pago.addMontoRapido,
+    onDeleteDigit: pos.pago.deleteLastDigit,
+
+    /* =======================
+       COMÚN
+    ======================= */
+    onBack: pos.pago.closeAll,
+  })
 
   /* =======================================================
      RENDER
@@ -106,8 +125,10 @@ usePosShortcuts({
         productos={pos.productos}
         stockMap={pos.stockMap}
         loadingProductos={pos.loadingProductos}
+
         showReceptor={pos.showReceptor}
         onCloseReceptor={pos.closeReceptor}
+
         cart={pos.cart}
         highlightedId={pos.highlightedId}
 
@@ -116,22 +137,20 @@ usePosShortcuts({
         total={pos.total}
         onClearCart={pos.clearCart}
 
-        /* ===== DOCUMENTO ===== */
-        documentoTributario={
-          pos.documentoTributario
-        }
-        onSetTipoDocumento={
-          pos.setTipoDocumento
-        }
-        onSetReceptor={
-          pos.setReceptor
-        }
+        /* Documento */
+        documentoTributario={pos.documentoTributario}
+        onSetTipoDocumento={pos.setTipoDocumento}
+        onSetReceptor={pos.setReceptor}
 
+        /* Caja */
         bloqueado={pos.bloqueado}
         cargandoCaja={pos.cargandoCaja}
+
+        /* Acciones */
         onCobrar={pos.onCobrar}
 
-        cobro={pos.cobro}
+        /* Pago */
+        pago={pos.pago}
       />
 
       {/* ===============================

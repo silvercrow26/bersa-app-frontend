@@ -1,13 +1,14 @@
 import { memo, useCallback } from 'react'
 import ProductCard from './ProductCard'
-import type { ProductoPOS } from '@/modules/pos/domain/pos.types'
+
+import type { Producto } from '@/domains/producto/domain/producto.types'
 
 interface Props {
-  productos: ProductoPOS[]
+  productos: Producto[]
   stockMap: Record<string, number>
   loading: boolean
 
-  onAddProduct: (producto: ProductoPOS) => void
+  onAddProduct: (producto: Producto) => void
   onAnyClick?: () => void
 }
 
@@ -28,13 +29,14 @@ function ProductGrid({
   onAddProduct,
   onAnyClick,
 }: Props) {
+
   /**
    * Handler estable:
    * - no se recrea por producto
    * - mantiene memoización de ProductCard
    */
   const handleAdd = useCallback(
-    (producto: ProductoPOS) => {
+    (producto: Producto) => {
       onAddProduct(producto)
       onAnyClick?.()
     },
@@ -43,6 +45,7 @@ function ProductGrid({
 
   return (
     <div className="relative">
+
       {/* ===============================
           Grid de productos (SIEMPRE)
       =============================== */}
@@ -60,11 +63,12 @@ function ProductGrid({
         )}
 
         {productos.map(producto => {
-          const stock = stockMap[producto._id] ?? 0
+          const stock =
+            stockMap[producto.id] ?? 0
 
           return (
             <ProductCard
-              key={producto._id}
+              key={producto.id}
               nombre={producto.nombre}
               precio={producto.precio}
               activo={producto.activo}

@@ -18,7 +18,7 @@ import {
   type EstadoStockKey,
 } from '../domain/stock.logic'
 
-import ProductoSearchInput from '@/shared/producto/ui/ProductoSearchInput'
+import ProductoSearchInput from '@/domains/producto/ui/ProductoSearchInput'
 
 import type { StockProducto } from '@/shared/types/stock.types'
 

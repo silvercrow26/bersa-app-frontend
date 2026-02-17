@@ -1,10 +1,10 @@
 import { useMemo, useDeferredValue } from 'react'
 
-import { useProductosPOS } from '@/shared/queries/useProductos'
+import { useProductosPOS } from '@/domains/producto/hooks/useProductos'
 import { useStockSucursal } from '@/shared/hooks/useStockSucursal'
 import { useAuth } from '@/modules/auth/useAuth'
 
-import type { ProductoPOS } from '../domain/pos.types'
+import type { Producto } from '@/domains/producto/domain/producto.types'
 
 /**
  * =====================================================
@@ -23,23 +23,26 @@ import type { ProductoPOS } from '../domain/pos.types'
  * =====================================================
  */
 export function usePosProductos(query: string) {
+
   const { user } = useAuth()
   const sucursalId = user?.sucursalId
 
   /* ===============================
      Catálogo de productos
   =============================== */
+
   const {
     data: productosCatalogo = [],
     isLoading: loadingProductos,
   } = useProductosPOS()
 
-  const productos =
-    productosCatalogo as ProductoPOS[]
+  // Cast controlado mientras no refactorizamos dominio
+  const productos = productosCatalogo as Producto[]
 
   /* ===============================
      Stock por sucursal activa
   =============================== */
+
   const {
     stock: stockMap,
     loading: loadingStock,
@@ -48,17 +51,20 @@ export function usePosProductos(query: string) {
   /* ===============================
      Búsqueda diferida (UX)
   =============================== */
+
   const deferredQuery = useDeferredValue(query)
 
   /* ===============================
      Filtrado optimizado
   =============================== */
+
   const productosFiltrados = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase()
 
     if (!q) return productos
 
     return productos.filter(p => {
+
       if (p.nombre.toLowerCase().includes(q)) {
         return true
       }

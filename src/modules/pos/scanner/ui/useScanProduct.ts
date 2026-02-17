@@ -1,12 +1,8 @@
-import { buscarProductoPorCodigo } from "@/modules/pos/api/pos.api"
-export interface ProductoEscaneado {
-  _id: string
-  nombre: string
-  precio: number
-  codigo?: string
-  activo: boolean
-  categoriaId?: string
-}
+import { useBuscarProductoPorCodigo } 
+  from '@/domains/producto/hooks/useBuscarProductoPorCodigo'
+
+import type { Producto } 
+  from '@/domains/producto/domain/producto.types'
 
 /**
  * Hook para procesar un código escaneado.
@@ -16,12 +12,12 @@ export interface ProductoEscaneado {
  * - Lanza errores semánticos para la UI
  */
 export function useScanProduct() {
-  const scan = async (
-    code: string
-  ): Promise<ProductoEscaneado> => {
-    const producto = await buscarProductoPorCodigo(
-      code
-    )
+
+  const { buscar } = useBuscarProductoPorCodigo()
+
+  const scan = async (code: string): Promise<Producto> => {
+
+    const producto = await buscar(code)
 
     if (!producto) {
       throw new Error('NOT_FOUND')
@@ -31,14 +27,7 @@ export function useScanProduct() {
       throw new Error('INACTIVE')
     }
 
-    return {
-      _id: producto._id,
-      nombre: producto.nombre,
-      precio: producto.precio,
-      codigo: producto.codigo,
-      activo: producto.activo,
-      categoriaId: producto.categoriaId,
-    }
+    return producto
   }
 
   return { scan }

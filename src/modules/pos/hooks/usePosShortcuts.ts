@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
-import type { TipoPago } from '../domain/pos.types'
+import type { TipoPago } from '@/domains/venta/domain/pago/pago.types'
 
 export type ShortcutMode =
   | 'VENTA'
   | 'TIPO_PAGO'
   | 'PAGO'
+  | 'POSTVENTA'
   | null
 
 interface Props {
@@ -20,6 +21,8 @@ interface Props {
 
   /* pago */
   onConfirmPago?: () => void
+  onAddMontoRapido?: (monto: number) => void
+  onDeleteDigit?: () => void
 
   /* común */
   onBack?: () => void
@@ -34,6 +37,8 @@ export function usePosShortcuts({
 
   onSelectTipoPago,
   onConfirmPago,
+  onAddMontoRapido,
+  onDeleteDigit,
 
   onBack,
 }: Props) {
@@ -47,17 +52,12 @@ export function usePosShortcuts({
       const tag =
         (e.target as HTMLElement)?.tagName
 
-      // En venta permitimos shortcuts aunque haya input
-      if (
-        mode !== 'VENTA' &&
-        (tag === 'INPUT' || tag === 'TEXTAREA')
-      ) {
-        return
-      }
+      const isInput =
+        tag === 'INPUT' || tag === 'TEXTAREA'
 
-      /* ===============================
-         MODO VENTA
-      =============================== */
+      /* =================================================
+         VENTA
+      ================================================= */
 
       if (mode === 'VENTA') {
 
@@ -86,11 +86,13 @@ export function usePosShortcuts({
           onDecreaseLast()
           return
         }
+
+        return
       }
 
-      /* ===============================
-         MODO TIPO PAGO
-      =============================== */
+      /* =================================================
+         TIPO PAGO
+      ================================================= */
 
       if (mode === 'TIPO_PAGO') {
 
@@ -125,19 +127,66 @@ export function usePosShortcuts({
           onBack?.()
           return
         }
+
+        return
       }
 
-      /* ===============================
-         MODO PAGO
-      =============================== */
+      /* =================================================
+         PAGO
+      ================================================= */
 
       if (mode === 'PAGO') {
 
+        // 🔥 MONTOS RÁPIDOS F1–F5
+        if (
+          e.key === 'F1' ||
+          e.key === 'F2' ||
+          e.key === 'F3' ||
+          e.key === 'F4' ||
+          e.key === 'F5'
+        ) {
+          const map: Record<string, number> = {
+            F1: 1000,
+            F2: 2000,
+            F3: 5000,
+            F4: 10000,
+            F5: 20000,
+          }
+
+          e.preventDefault()
+          onAddMontoRapido?.(map[e.key])
+          return
+        }
+
+        // ENTER
         if (e.key === 'Enter') {
           e.preventDefault()
           onConfirmPago?.()
           return
         }
+
+        // BACKSPACE
+        if (!isInput && e.key === 'Backspace') {
+          e.preventDefault()
+          onDeleteDigit?.()
+          return
+        }
+
+        // ESC
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          onBack?.()
+          return
+        }
+
+        return
+      }
+
+      /* =================================================
+         POSTVENTA
+      ================================================= */
+
+      if (mode === 'POSTVENTA') {
 
         if (e.key === 'Escape') {
           e.preventDefault()
@@ -147,14 +196,17 @@ export function usePosShortcuts({
       }
     }
 
-    document.addEventListener('keydown', handler)
+    // 👇 CAPTURE PHASE (clave)
+    document.addEventListener('keydown', handler, true)
 
     return () => {
       document.removeEventListener(
         'keydown',
-        handler
+        handler,
+        true
       )
     }
+
   }, [
     mode,
 
@@ -164,6 +216,8 @@ export function usePosShortcuts({
 
     onSelectTipoPago,
     onConfirmPago,
+    onAddMontoRapido,
+    onDeleteDigit,
 
     onBack,
   ])

@@ -6,7 +6,7 @@ import React, { memo, useCallback } from 'react'
 
 /* ---------- Producto ---------- */
 import ProductGrid from './product/ProductGrid'
-import ProductoSearchInput from '@/shared/producto/ui/ProductoSearchInput'
+import ProductoSearchInput from '@/domains/producto/ui/ProductoSearchInput'
 
 /* ---------- Carrito ---------- */
 import Cart from '../cart/ui/Cart'
@@ -14,9 +14,9 @@ import Cart from '../cart/ui/Cart'
 /* ---------- Scanner ---------- */
 import ProductScanner from '../scanner/ui/ProductScanner'
 
-/* ---------- Cobro ---------- */
-import PaymentModal from '../Cobro/ui/PaymentModal'
-import SeleccionarTipoPagoModal from '../Cobro/ui/SeleccionarTipoPagoModal'
+/* ---------- Pago ---------- */
+import PaymentModal from '../pago/ui/PaymentModal'
+import SeleccionarTipoPagoModal from '../pago/ui/SeleccionarTipoPagoModal'
 
 /* ---------- Documento ---------- */
 import DocumentoReceptorModal from './documento/DocumentoReceptorModal'
@@ -25,40 +25,56 @@ import DocumentoReceptorModal from './documento/DocumentoReceptorModal'
    Types
 ===================================================== */
 
+import type { Producto } from '@/domains/producto/domain/producto.types'
+import type { EstadoCobro } from '@/domains/venta/domain/cobro/cobro.types'
 import type {
-  CartItem,
-  ProductoPOS,
-  TipoPago,
-} from '../domain/pos.types'
-import type { EstadoCobro } from '../Cobro/domain/cobro.types'
-import type { DocumentoReceptor, DocumentoTributario } from '../../../domains/venta/domain/venta.types';
+  DocumentoReceptor,
+  DocumentoTributario,
+} from '@/domains/venta/domain/venta.types'
+import type { TipoPago } from '@/domains/venta/domain/pago/pago.types'
+import type { CartItem } from '@/domains/venta/domain/cart-item.types'
 
+/* =====================================================
+   Pago Controller
+===================================================== */
 
-interface CobroUIController {
+interface PagoUIController {
   showTipoPago: boolean
   showPayment: boolean
   modoPago: TipoPago | null
   estado: EstadoCobro | null
   loading: boolean
+
+  efectivoRaw: string
+  debitoRaw: string
+
   setEfectivo: (value: string) => void
   setDebito: (value: string) => void
+
+  addMontoRapido: (monto: number) => void
+  deleteLastDigit: () => void
+
   confirm: () => void
   closeAll: () => void
   backToTipoPago: () => void
   selectTipoPago: (tipo: TipoPago) => void
 }
 
+/* =====================================================
+   Props
+===================================================== */
+
 export interface PosVentaViewProps {
 
   /* scanner */
   scannerRef: React.RefObject<HTMLInputElement | null>
-  onAddProduct: (producto: ProductoPOS) => void
+  onAddProduct: (producto: Producto) => void
   onFocusScanner: () => void
 
   /* búsqueda */
   query: string
   onChangeQuery: (value: string) => void
-  productos: ProductoPOS[]
+  productos: Producto[]
   stockMap: Record<string, number>
   loadingProductos: boolean
 
@@ -79,12 +95,16 @@ export interface PosVentaViewProps {
   showReceptor: boolean
   onCloseReceptor: () => void
 
-  /* caja / cobro */
+  /* caja / pago */
   bloqueado: boolean
   cargandoCaja: boolean
   onCobrar: () => void
-  cobro: CobroUIController
+  pago: PagoUIController
 }
+
+/* =====================================================
+   Component
+===================================================== */
 
 function PosVentaView({
 
@@ -115,12 +135,12 @@ function PosVentaView({
   bloqueado,
   cargandoCaja,
   onCobrar,
-  cobro,
+  pago,
 
 }: PosVentaViewProps) {
 
   const handleAddProductFromGrid = useCallback(
-    (producto: ProductoPOS) => {
+    (producto: Producto) => {
       onAddProduct(producto)
       onChangeQuery('')
       onFocusScanner()
@@ -130,10 +150,18 @@ function PosVentaView({
 
   return (
     <>
+      {/* =======================
+          SCANNER
+      ======================= */}
+
       <ProductScanner
         scannerRef={scannerRef}
         onAddProduct={onAddProduct}
       />
+
+      {/* =======================
+          CUERPO
+      ======================= */}
 
       <div className="pt-3 h-[calc(100vh-7rem)]">
 
@@ -192,14 +220,15 @@ function PosVentaView({
               {cart.length > 0 && (
                 <div className="pt-3 pb-4 space-y-2">
 
-                  {/* Selector Documento */}
+                  {/* Documento */}
                   <div className="flex gap-2">
 
                     <button
-                      className={`flex-1 py-2 rounded font-medium ${documentoTributario.tipo === 'BOLETA'
+                      className={`flex-1 py-2 rounded font-medium ${
+                        documentoTributario.tipo === 'BOLETA'
                           ? 'bg-emerald-600 text-white'
                           : 'bg-slate-700 text-slate-200'
-                        }`}
+                      }`}
                       onClick={() =>
                         onSetTipoDocumento('BOLETA')
                       }
@@ -208,10 +237,11 @@ function PosVentaView({
                     </button>
 
                     <button
-                      className={`flex-1 py-2 rounded font-medium ${documentoTributario.tipo === 'FACTURA'
+                      className={`flex-1 py-2 rounded font-medium ${
+                        documentoTributario.tipo === 'FACTURA'
                           ? 'bg-emerald-600 text-white'
                           : 'bg-slate-700 text-slate-200'
-                        }`}
+                      }`}
                       onClick={() =>
                         onSetTipoDocumento('FACTURA')
                       }
@@ -229,10 +259,11 @@ function PosVentaView({
                       if (bloqueado) return
                       onCobrar()
                     }}
-                    className={`w-full py-3 rounded text-white font-semibold transition ${bloqueado
+                    className={`w-full py-3 rounded text-white font-semibold transition ${
+                      bloqueado
                         ? 'bg-gray-500 cursor-not-allowed'
                         : 'bg-emerald-600 hover:bg-emerald-700'
-                      }`}
+                    }`}
                   >
                     {cargandoCaja
                       ? 'Validando caja…'
@@ -252,25 +283,28 @@ function PosVentaView({
           MODALES
       ======================= */}
 
-      {cobro.showTipoPago && (
+      {pago.showTipoPago && (
         <SeleccionarTipoPagoModal
-          onClose={cobro.closeAll}
-          onSelect={cobro.selectTipoPago}
+          onClose={pago.closeAll}
+          onSelect={pago.selectTipoPago}
         />
       )}
 
-      {cobro.showPayment &&
-        cobro.modoPago &&
-        cobro.estado && (
+      {pago.showPayment &&
+        pago.modoPago &&
+        pago.estado && (
           <PaymentModal
             totalVenta={total}
-            modo={cobro.modoPago}
-            estado={cobro.estado}
-            loading={cobro.loading}
-            setEfectivo={cobro.setEfectivo}
-            setDebito={cobro.setDebito}
-            onClose={cobro.closeAll}
-            onConfirm={cobro.confirm}
+            modo={pago.modoPago}
+            estado={pago.estado}
+            loading={pago.loading}
+
+            efectivoRaw={pago.efectivoRaw}
+            setEfectivo={pago.setEfectivo}
+            setDebito={pago.setDebito}
+
+            onClose={pago.closeAll}
+            onConfirm={pago.confirm}
           />
         )}
 

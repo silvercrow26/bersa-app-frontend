@@ -1,7 +1,7 @@
 import { type VentaCreadaBackend, mapVentaCreadaToPostVenta } from '@/domains/venta/mappers/postventa.mapper'
 import { useCallback, useState } from 'react'
 import type { PostVenta } from '../domain/postventa.types'
-import type { CartItem } from '../../../modules/pos/domain/pos.types'
+import type { CartItem } from '../domain/cart-item.types'
 
 /**
  * Hook orquestador de PostVenta.

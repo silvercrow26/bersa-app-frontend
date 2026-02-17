@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/useAuth'
-import type { Producto } from '@/shared/producto/producto.types'
-import { setProductoActivo } from '@/shared/producto/api/producto.api';
+import type { Producto } from '@/domains/producto/domain/producto.types'
+import { setProductoActivo } from '@/domains/producto/api/producto.api'
 
-
-import { useProductosAdmin } from '@/shared/queries/useProductos'
+import { useProductosAdmin } from '../../../domains/producto/hooks/useProductos';
 
 import ProductosTable from './ProductosTable'
 import ProductoModal from './ProductoModal'
@@ -50,7 +49,7 @@ export default function ProductosPage() {
   const toggleProducto = useMutation({
     mutationFn: async (producto: Producto) => {
       return setProductoActivo(
-        producto._id,
+        producto.id,
         !producto.activo
       )
     },

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getResumenPrevioCaja } from '@/modules/pos/api/pos.api'
+import { getResumenPrevioCaja } from '../api/caja.api'
 
 export function useResumenPrevioCajaQuery(cajaId?: string) {
   return useQuery({

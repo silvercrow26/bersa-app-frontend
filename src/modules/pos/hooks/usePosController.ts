@@ -4,9 +4,10 @@ import { useCaja } from '@/modules/pos/caja/context/CajaProvider'
 import { usePosProductos } from './usePosProductos'
 import { usePosScanner } from './usePosScanner'
 import { usePosVentaFlow } from './usePosVentaFlow'
-import { usePosCobroFlow } from './usePosCobroFlow'
+import { usePosPagoFlow } from './usePosPagoFlow'
 
-import type { DocumentoReceptor } from '../../../domains/venta/domain/venta.types'
+import type { DocumentoReceptor } from '@/domains/venta/domain/venta.types'
+import type { Producto } from '@/domains/producto/domain/producto.types'
 
 /* =======================================================
    POS CONTROLLER
@@ -44,12 +45,12 @@ export function usePosController() {
     onConfirmVenta,
   } = usePosVentaFlow()
 
-  const cobro = usePosCobroFlow({
+  const pago = usePosPagoFlow({
     totalVenta: venta.total,
     onConfirmVenta,
   })
 
-  const cobroStable = useMemo(() => cobro, [cobro])
+  const pagoStable = useMemo(() => pago, [pago])
 
   /* ===============================
      PRODUCTOS
@@ -77,8 +78,8 @@ export function usePosController() {
     !aperturaActiva ||
     postVenta.open ||
     showReceptor ||
-    cobroStable.showTipoPago ||
-    cobroStable.showPayment
+    pagoStable.showTipoPago ||
+    pagoStable.showPayment
 
   /* ===============================
      HELPERS
@@ -108,9 +109,9 @@ export function usePosController() {
     (receptor: DocumentoReceptor) => {
       venta.setReceptor(receptor)
       closeReceptor()
-      cobroStable.openCobro()
+      pagoStable.openPago()
     },
-    [venta, closeReceptor, cobroStable]
+    [venta, closeReceptor, pagoStable]
   )
 
   /* ===============================
@@ -118,23 +119,19 @@ export function usePosController() {
   =============================== */
 
   const onAddProduct = useCallback(
-    (p: {
-      _id: string
-      nombre: string
-      precio: number
-      activo: boolean
-    }) => {
+    (producto: Producto) => {
 
-      if (bloqueado || !p.activo) return
+      if (bloqueado || !producto.activo) return
 
       venta.addProduct({
-        productoId: p._id,
-        nombre: p.nombre,
-        precioUnitario: p.precio,
-        stockDisponible: stockMap[p._id] ?? 0,
+        productoId: producto.id,
+        nombre: producto.nombre,
+        precioUnitario: producto.precio,
+        stockDisponible:
+          stockMap[producto.id] ?? 0,
       })
 
-      flashHighlight(p._id)
+      flashHighlight(producto.id)
       focusScanner()
 
     },
@@ -211,7 +208,7 @@ export function usePosController() {
   }, [bloqueado, resolveTargetId, venta, flashHighlight])
 
   /* ===============================
-     COBRAR
+     PAGO
   =============================== */
 
   const onCobrar = useCallback(() => {
@@ -226,13 +223,13 @@ export function usePosController() {
       return
     }
 
-    cobroStable.openCobro()
+    pagoStable.openPago()
 
   }, [
     bloqueado,
     documentoTributario,
     openReceptor,
-    cobroStable,
+    pagoStable,
   ])
 
   /* ===============================
@@ -279,7 +276,7 @@ export function usePosController() {
     onAddProduct,
     onCobrar,
 
-    cobro: cobroStable,
+    pago: pagoStable,
     postVenta,
 
     /* receptor */

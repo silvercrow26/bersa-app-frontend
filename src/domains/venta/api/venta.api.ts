@@ -4,7 +4,7 @@ import { api } from '@/shared/api/api'
    Tipos dominio
 ===================================================== */
 
-import type { PagoPOS } from '@/modules/pos/domain/pos.types'
+import type { Pago } from '../domain/pago/pago.types'
 import type {
   VentaDetalle,
   DocumentoTributario,
@@ -27,7 +27,7 @@ export interface CrearVentaPOSPayload {
     precioUnitario: number
   }[]
 
-  pagos: PagoPOS[]
+  pagos: Pago[]
 
   documentoTributario: DocumentoTributario
 }

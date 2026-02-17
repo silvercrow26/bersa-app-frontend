@@ -1,17 +1,20 @@
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
-import { crearVentaPOS } from '@/domains/venta/api/venta.api'
-import { useVenta } from '../../../domains/venta/hooks/useVenta'
-import { usePostVenta } from '../../../domains/venta/hooks/usePostVenta'
+import { useVenta } from '@/domains/venta/hooks/useVenta'
+import { usePostVenta } from '@/domains/venta/hooks/usePostVenta'
+import { useCrearVenta } from '@/domains/venta/hooks/useCrearVenta'
+
 import { useCaja } from '@/modules/pos/caja/context/CajaProvider'
 
-import type { ConfirmVentaPayload } from '../domain/pos.contracts'
+import type { ConfirmVentaPayload } from '@/domains/venta/domain/venta.contracts'
 
 export function usePosVentaFlow() {
 
   const venta = useVenta()
   const postVenta = usePostVenta()
+  const crearVenta = useCrearVenta()
+
   const queryClient = useQueryClient()
 
   const { cajaSeleccionada, aperturaActiva } =
@@ -43,20 +46,22 @@ export function usePosVentaFlow() {
         return
       }
 
-      const ventaCreada = await crearVentaPOS({
-        cajaId: cajaSeleccionada.id,
-        aperturaCajaId: aperturaActiva.id,
+      const ventaCreada =
+        await crearVenta.mutateAsync({
+          cajaId: cajaSeleccionada.id,
+          aperturaCajaId: aperturaActiva.id,
 
-        pagos,
+          pagos,
 
-        items: venta.cart.map(item => ({
-          productoId: item.productoId,
-          cantidad: item.cantidad,
-          precioUnitario: item.precioUnitario,
-        })),
+          items: venta.cart.map(item => ({
+            productoId: item.productoId,
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+          })),
 
-        documentoTributario: venta.documentoTributario,
-      })
+          documentoTributario:
+            venta.documentoTributario,
+        })
 
       postVenta.openPostVenta(
         ventaCreada,
@@ -76,6 +81,7 @@ export function usePosVentaFlow() {
       aperturaActiva,
       venta,
       postVenta,
+      crearVenta,
       queryClient,
       closeReceptor,
     ]

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { CartItem } from '@/modules/pos/domain/pos.types'
+import type { CartItem } from '@/domains/venta/domain/cart-item.types'
 
 /**
  * =====================================================

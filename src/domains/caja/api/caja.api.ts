@@ -1,129 +1,53 @@
 import { api } from '@/shared/api/api'
-import type { AperturaCaja, Caja } from '../domain/caja.types'
-import { ESTADO_APERTURA_CAJA } from '../domain/caja.types'
-
-/* =====================================================
-   DTOs backend
-===================================================== */
-
-interface CajaDTO {
-  id?: string
-  _id?: string
-  nombre: string
-  sucursalId: string
-  activa: boolean
-}
-
-interface AperturaCajaDTO {
-  id?: string
-  _id?: string
-
-  cajaId: string
-  sucursalId: string
-
-  usuarioAperturaId: string
-  usuarioAperturaNombre?: string
-  usuarioCierreId?: string
-
-  fechaApertura: string
-  montoInicial: number
-
-  fechaCierre?: string
-  montoFinal?: number
-  diferencia?: number
-
-  estado: string
-}
-
-/* =====================================================
-   Normalizadores
-===================================================== */
-
-function normalizarCaja(dto: CajaDTO): Caja {
-  return {
-    id: String(dto.id ?? dto._id),
-    nombre: dto.nombre,
-    sucursalId: String(dto.sucursalId),
-    activa: Boolean(dto.activa),
-  }
-}
-
-function normalizarApertura(
-  dto: AperturaCajaDTO
-): AperturaCaja {
-  return {
-    id: String(dto.id ?? dto._id),
-    cajaId: dto.cajaId,
-    sucursalId: dto.sucursalId,
-
-    usuarioAperturaId: dto.usuarioAperturaId,
-    usuarioAperturaNombre: dto.usuarioAperturaNombre,
-
-    usuarioCierreId: dto.usuarioCierreId,
-
-    fechaApertura: dto.fechaApertura,
-    montoInicial: dto.montoInicial,
-
-    fechaCierre: dto.fechaCierre,
-    montoFinal: dto.montoFinal,
-    diferencia: dto.diferencia,
-
-    estado:
-      dto.estado as typeof ESTADO_APERTURA_CAJA[keyof typeof ESTADO_APERTURA_CAJA],
-  }
-}
-
-/* =====================================================
-   API — LECTURA GLOBAL
-===================================================== */
+import type { Caja, AperturaCaja } from '../domain/caja.types'
+import {
+  mapCajaFromApi,
+  mapAperturaFromApi,
+} from '../mappers/caja.mapper'
 
 export async function getCajasSucursal(
   sucursalId: string
 ): Promise<Caja[]> {
-  const { data } = await api.get<CajaDTO[]>(
+  const { data } = await api.get(
     '/cajas',
     { params: { sucursalId } }
   )
 
-  return data.map(normalizarCaja)
+  return data.map(mapCajaFromApi)
 }
 
 export async function getAperturasActivasSucursal(
   sucursalId: string
 ): Promise<AperturaCaja[]> {
-  const { data } = await api.get<AperturaCajaDTO[]>(
+  const { data } = await api.get(
     '/aperturas/activas',
     { params: { sucursalId } }
   )
 
-  return data.map(normalizarApertura)
+  return data.map(mapAperturaFromApi)
 }
-
-/* =====================================================
-   API — CAJA INDIVIDUAL
-===================================================== */
 
 export async function getAperturaActiva(
   cajaId: string
 ): Promise<AperturaCaja | null> {
-  const { data } = await api.get<AperturaCajaDTO | null>(
+  const { data } = await api.get(
     `/cajas/${cajaId}/apertura-activa`
   )
 
   if (!data) return null
-  return normalizarApertura(data)
+  return mapAperturaFromApi(data)
 }
 
 export async function abrirCaja(params: {
   cajaId: string
   montoInicial: number
 }): Promise<AperturaCaja> {
-  const { data } = await api.post<AperturaCajaDTO>(
+  const { data } = await api.post(
     `/cajas/${params.cajaId}/abrir`,
     { montoInicial: params.montoInicial }
   )
 
-  return normalizarApertura(data)
+  return mapAperturaFromApi(data)
 }
 
 export async function getResumenPrevioCaja(
