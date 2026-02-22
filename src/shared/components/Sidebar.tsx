@@ -4,9 +4,6 @@ import { useAuth } from '../../modules/auth/useAuth'
 
 /* =====================================================
    Estilos base
-   -----------------------------------------------------
-   - Optimizados para renders frecuentes
-   - Evitan recreación de strings
 ===================================================== */
 
 const linkBase =
@@ -22,21 +19,12 @@ const inactive =
 
 /* =====================================================
    Sidebar
-   -----------------------------------------------------
-   - Componente puramente visual
-   - Decide visibilidad por rol
-   - NO contiene lógica de negocio
 ===================================================== */
 
 export default memo(function Sidebar() {
+
   const { user } = useAuth()
   if (!user) return null
-
-  /* ===================================================
-     Roles
-     ---------------------------------------------------
-     Centralizados para evitar duplicación
-  =================================================== */
 
   const rol = user.rol
 
@@ -49,6 +37,7 @@ export default memo(function Sidebar() {
 
   return (
     <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
+
       {/* =============================================
           Brand
       ============================================= */}
@@ -63,6 +52,7 @@ export default memo(function Sidebar() {
           Navigation
       ============================================= */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto overscroll-contain">
+
         {/* ===============================
             POS
         =============================== */}
@@ -72,10 +62,6 @@ export default memo(function Sidebar() {
             OPERACIÓN
         =============================== */}
         <Section title="Operación" />
-
-        <Item to="/admin/ventas">
-          💳 Ventas
-        </Item>
 
         <Item to="/admin/pedidos">
           📄 Pedidos
@@ -102,6 +88,23 @@ export default memo(function Sidebar() {
         </Item>
 
         {/* ===============================
+            CAJA / AUDITORÍA
+        =============================== */}
+        <Section title="Caja" />
+
+        <Item to="/admin/aperturas">
+          🧾 Aperturas
+        </Item>
+
+        <Item to="/admin/ventas">
+          💳 Ventas
+        </Item>
+
+        <Item to="/admin/cierres">
+          📊 Cierres
+        </Item>
+
+        {/* ===============================
             CATÁLOGO
         =============================== */}
         <Section title="Catálogo" />
@@ -116,19 +119,6 @@ export default memo(function Sidebar() {
 
         <Item to="/admin/proveedores">
           🚚 Proveedores
-        </Item>
-
-        {/* ===============================
-            CAJA
-        =============================== */}
-        <Section title="Caja" />
-
-        <Item to="/admin/cajas">
-          💰 Cajas
-        </Item>
-
-        <Item to="/admin/cierres">
-          📊 Cierres
         </Item>
 
         {/* ===============================
@@ -160,6 +150,7 @@ export default memo(function Sidebar() {
             </Item>
           </>
         )}
+
       </nav>
 
       {/* =============================================
@@ -171,15 +162,13 @@ export default memo(function Sidebar() {
         </div>
         <div>{user.rol}</div>
       </div>
+
     </aside>
   )
 })
 
 /* =====================================================
    Helpers
-   -----------------------------------------------------
-   Simples, sin memo extra.
-   NavLink ya maneja estado activo.
 ===================================================== */
 
 function Item({

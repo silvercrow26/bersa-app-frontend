@@ -3,9 +3,10 @@ export type VentaEstado = 'FINALIZADA' | 'ANULADA'
 export interface VentaAdmin {
   id: string
 
+  folio: string
+
   numeroVenta: number
 
-  // 🔥 NUEVO
   aperturaCajaId: string
 
   total: number
@@ -26,6 +27,9 @@ export interface VentaAdmin {
 
 export interface VentaAdminDetalle {
   id: string
+
+  folio: string
+
   numeroVenta: number
 
   estado: VentaEstado

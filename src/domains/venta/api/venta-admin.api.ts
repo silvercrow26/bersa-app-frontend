@@ -17,8 +17,7 @@ export interface ListarVentasAdminParams {
   usuarioId?: string
   estado?: 'FINALIZADA' | 'ANULADA'
   tipoDocumento?: 'BOLETA' | 'FACTURA'
-
-  // 👇 NUEVO
+  folio?: string
   page?: number
   limit?: number
 }
@@ -48,21 +47,28 @@ export const listarVentasAdmin = async (
   )
 
   return {
-    data: data.data.map((v: any) => ({
+    data: data.data.map((v: any): VentaAdmin => ({
       id: v._id,
+
+      // 🔥 FOLIO
+      folio: v.folio,
+
       numeroVenta: v.numeroVenta,
-      
+
       aperturaCajaId: v.aperturaCajaId,
 
       total: v.total,
       totalCobrado: v.totalCobrado,
       estado: v.estado,
+
       documentoTributario: {
         tipo: v.documentoTributario?.tipo,
       },
+
       usuarioId: v.usuarioId,
       cajaId: v.cajaId,
       sucursalId: v.sucursalId,
+
       createdAt: v.createdAt,
     })),
 
@@ -86,6 +92,10 @@ export const obtenerVentaAdminDetalle = async (
 
   return {
     id: data._id,
+
+    // 🔥 FOLIO
+    folio: data.folio,
+
     numeroVenta: data.numeroVenta,
 
     estado: data.estado,

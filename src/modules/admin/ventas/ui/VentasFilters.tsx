@@ -28,7 +28,21 @@ export default function VentasFilters({
   onChange,
 }: Props) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+
+      {/* 🔥 Folio */}
+      <input
+        type="text"
+        placeholder="Buscar por folio..."
+        className={inputClass}
+        value={value.folio ?? ''}
+        onChange={e =>
+          onChange({
+            ...value,
+            folio: e.target.value || undefined,
+          })
+        }
+      />
 
       {/* Estado */}
       <select

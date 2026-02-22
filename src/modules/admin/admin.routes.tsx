@@ -30,6 +30,8 @@ import CrearPedidoPage from './pedido/ui/crear-pedido/CrearPedidoPage'
 =============================== */
 import DespachosPage from './despachos/ui/despachos/DespachosPage'
 import CrearDespachoPage from './despachos/ui/crear-despacho/CrearDespachoPage'
+import AdminAperturaDetallePage from './aperturas/pages/AdminAperturaDetallePage'
+import AdminAperturasPage from './aperturas/pages/AdminAperturasPage'
 
 export const AdminRoutes = (
   <Route
@@ -51,7 +53,26 @@ export const AdminRoutes = (
       path="abastecimiento"
       element={<AbastecimientoPage />}
     />
+    {/* ===============================
+    APERTURAS (solo admin)
+=============================== */}
+    <Route
+      element={
+        <RoleRoute allow={['ADMIN']}>
+          <Outlet />
+        </RoleRoute>
+      }
+    >
+      <Route
+        path="aperturas"
+        element={<AdminAperturasPage />}
+      />
 
+      <Route
+        path="aperturas/:id"
+        element={<AdminAperturaDetallePage />}
+      />
+    </Route>
     {/* ===============================
         VENTAS (solo admin / encargado)
     =============================== */}
