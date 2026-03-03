@@ -1,3 +1,7 @@
+import { FilterBar } from '@/shared/ui/filter-bar/filter-bar'
+import { Input } from '@/shared/ui/input/input'
+import { Select } from '@/shared/ui/select/select'
+
 /* =====================================================
    TIPOS
 ===================================================== */
@@ -34,65 +38,49 @@ export function StockFilters({
   onSearchChange,
 }: Props) {
   return (
-    <div className="flex flex-wrap gap-4 items-center">
+    <FilterBar>
 
-      <select
-        value={proveedorValue}
-        onChange={(e) =>
-          onProveedorChange(e.target.value as ProveedorFiltro)
-        }
-        className="
-  bg-slate-900
-  border border-slate-800
-  rounded-lg
-  px-3 py-2
-  text-sm
-  text-slate-200
-  focus:outline-none
-  focus:ring-2
-  focus:ring-blue-500/40
-  focus:border-blue-500/40
-  transition
-"
-      >
-        <option value="TODOS">
-          Todos los proveedores
-        </option>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
 
-        <option value="SIN_PROVEEDOR">
-          Sin proveedor
-        </option>
+        {/* Búsqueda */}
+        <div className="w-full md:w-72">
+          <Input
+            placeholder="Buscar producto..."
+            value={searchValue}
+            onChange={(e) =>
+              onSearchChange(e.target.value)
+            }
+          />
+        </div>
 
-        {proveedores.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.nombre}
-          </option>
-        ))}
-      </select>
+        {/* Proveedor */}
+        <div className="w-full md:w-56">
+          <Select
+            value={proveedorValue}
+            onChange={(e) =>
+              onProveedorChange(
+                e.target.value as ProveedorFiltro
+              )
+            }
+          >
+            <option value="TODOS">
+              Todos los proveedores
+            </option>
 
-      <input
-        type="text"
-        placeholder="Buscar producto..."
-        value={searchValue}
-        onChange={(e) =>
-          onSearchChange(e.target.value)
-        }
-        className="
-  bg-slate-900
-  border border-slate-800
-  rounded-lg
-  px-3 py-2
-  text-sm
-  w-64
-  text-slate-200
-  placeholder:text-slate-500
-  focus:outline-none
-  focus:ring-2
-  focus:ring-blue-500/40
-  focus:border-blue-500/40
-  transition
-"
-      />
-    </div>
+            <option value="SIN_PROVEEDOR">
+              Sin proveedor
+            </option>
+
+            {proveedores.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nombre}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+      </div>
+
+    </FilterBar>
   )
 }

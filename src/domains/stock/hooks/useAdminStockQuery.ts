@@ -1,21 +1,40 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { obtenerStockAdmin } from '../api/stock.api'
+import {
+  obtenerStockAdmin,
+  type ListarStockAdminResponse,
+} from '../api/stock.api'
+
 import { stockKeys } from '../queries/stock.keys'
 import type { AdminStockItem } from '../domain/stock.types'
 
-export function useAdminStockQuery(
+interface UseAdminStockParams {
   sucursalId?: string
+}
+
+export function useAdminStockQuery(
+  params?: UseAdminStockParams
 ) {
-  return useQuery<AdminStockItem[]>({
-    queryKey: stockKeys.admin(sucursalId),
+  const sucursalId = params?.sucursalId
 
-    queryFn: () =>
-      obtenerStockAdmin(sucursalId as string),
+  return useQuery<
+    ListarStockAdminResponse<AdminStockItem>
+  >({
+    queryKey: stockKeys.admin.list(sucursalId),
 
-    enabled: !!sucursalId,
+    queryFn: () => {
+      if (!sucursalId) {
+        throw new Error('sucursalId requerido')
+      }
 
-    staleTime: 0,
-    refetchOnMount: 'always',
+      return obtenerStockAdmin<AdminStockItem>({
+        sucursalId,
+      })
+    },
+
+    enabled: Boolean(sucursalId),
+
+    placeholderData: previous => previous,
+    staleTime: 1000 * 30,
   })
 }

@@ -3,9 +3,8 @@ import { ajustarStockAdmin } from '../api/stock.api'
 import { stockKeys } from '../queries/stock.keys'
 
 export function useAjustarStockMutation(
-  sucursalId: string
+  sucursalId?: string
 ) {
-
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -21,8 +20,10 @@ export function useAjustarStockMutation(
       ajustarStockAdmin(stockId, cantidad, motivo),
 
     onSuccess: () => {
+      if (!sucursalId) return
+
       queryClient.invalidateQueries({
-        queryKey: stockKeys.admin(sucursalId),
+        queryKey: stockKeys.admin.list(sucursalId),
       })
     },
   })

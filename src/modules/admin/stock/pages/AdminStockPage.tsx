@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/modules/auth/useAuth'
 import { useSucursalesQuery } from '@/domains/sucursal/hooks/useSucursalesQuery'
@@ -18,31 +18,24 @@ import type {
   EstadoStock,
 } from '@/domains/stock/domain/stock.types'
 
-import { StockEstadoButtons } from '../ui/StockEstadoButtons'
-import { StockFilters, type ProveedorFiltro } from '../ui/StockFilters';
+import { StockFilters, type ProveedorFiltro } from '../ui/StockFilters'
 import AdminStockTable from '../ui/AdminStockTable'
 import { StockAjusteModal } from '../ui/StockAjusteModal'
 
-/* =====================================================
-   TIPOS
-===================================================== */
+import { SectionHeader } from '@/shared/ui/section-header/section-header'
+import { Button } from '@/shared/ui/button/button'
+import { Select } from '@/shared/ui/select/select'
+import { Surface } from '@/shared/ui/surface/Surface'
 
 type EstadoFiltro = 'TODOS' | EstadoStock
 
-/* =====================================================
-   COMPONENTE
-===================================================== */
+const PAGE_SIZE = 10
 
 export default function AdminStockPage() {
-
   const { user } = useAuth()
 
   const puedeElegirSucursal =
     user?.sucursal?.esPrincipal ?? false
-
-  /* ===============================
-     URL PARAMS
-  =============================== */
 
   const [searchParams, setSearchParams] =
     useSearchParams()
@@ -52,15 +45,11 @@ export default function AdminStockPage() {
     user?.sucursal?.id ??
     ''
 
-  /* ===============================
-     DATA
-  =============================== */
+  const { data } = useAdminStockQuery({
+    sucursalId,
+  })
 
-  const {
-    data = [],
-    isLoading,
-    isError,
-  } = useAdminStockQuery(sucursalId)
+  const stockData = data?.data ?? []
 
   const { data: sucursales = [] } =
     useSucursalesQuery({
@@ -70,32 +59,31 @@ export default function AdminStockPage() {
   const ajusteMutation =
     useAjustarStockMutation(sucursalId)
 
-  /* ===============================
-     FILTROS
-  =============================== */
-
   const [search, setSearch] = useState('')
   const [estadoFilter, setEstadoFilter] =
     useState<EstadoFiltro>('TODOS')
-
   const [proveedorFilter, setProveedorFilter] =
     useState<ProveedorFiltro>('TODOS')
 
-  /* ===============================
-     AJUSTE
-  =============================== */
+  const [page, setPage] = useState(1)
 
   const [selectedStockId, setSelectedStockId] =
     useState<string | null>(null)
 
-  /* ===============================
-     PROVEEDORES ÚNICOS
-  =============================== */
+  /* =====================================================
+     RESET PAGE CUANDO CAMBIAN FILTROS
+  ===================================================== */
+  useEffect(() => {
+    setPage(1)
+  }, [search, estadoFilter, proveedorFilter, sucursalId])
 
+  /* =====================================================
+     PROVEEDORES ÚNICOS
+  ===================================================== */
   const proveedoresUnicos = useMemo(() => {
     const map = new Map<string, string>()
 
-    data.forEach(item => {
+    stockData.forEach(item => {
       if (item.proveedorId && item.proveedorNombre) {
         map.set(item.proveedorId, item.proveedorNombre)
       }
@@ -104,12 +92,11 @@ export default function AdminStockPage() {
     return Array.from(map.entries()).map(
       ([id, nombre]) => ({ id, nombre })
     )
-  }, [data])
+  }, [stockData])
 
-  /* ===============================
-     CONTEO ESTADOS
-  =============================== */
-
+  /* =====================================================
+     KPI COUNTS (SIEMPRE DATA COMPLETA)
+  ===================================================== */
   const conteoEstados = useMemo(() => {
     const base: Record<EstadoStock, number> = {
       NEGATIVO: 0,
@@ -118,26 +105,24 @@ export default function AdminStockPage() {
       OK: 0,
     }
 
-    data.forEach(item => {
-      const estado =
-        getEstadoStock(
-          item,
-          STOCK_LIMITE_BAJO_DEFAULT
-        )
-
+    stockData.forEach(item => {
+      const estado = getEstadoStock(
+        item,
+        STOCK_LIMITE_BAJO_DEFAULT
+      )
       base[estado]++
     })
 
     return base
-  }, [data])
+  }, [stockData])
 
-  /* ===============================
-     DATA DERIVADA
-  =============================== */
+  const totalGeneral = stockData.length
 
-  const items = useMemo(() => {
-
-    return data
+  /* =====================================================
+     FILTRADO (NO AFECTA KPIs)
+  ===================================================== */
+  const itemsFiltrados = useMemo(() => {
+    return stockData
       .map(item => ({
         ...item,
         estado: getEstadoStock(
@@ -146,7 +131,6 @@ export default function AdminStockPage() {
         ),
       }))
       .filter(item => {
-
         const matchSearch =
           item.nombreProducto
             .toLowerCase()
@@ -170,136 +154,167 @@ export default function AdminStockPage() {
           matchProveedor
         )
       })
+  }, [stockData, search, estadoFilter, proveedorFilter])
 
-  }, [
-    data,
-    search,
-    estadoFilter,
-    proveedorFilter,
-  ])
+  const totalFiltrado = itemsFiltrados.length
+
+  /* =====================================================
+     PAGINACIÓN (FRONTEND REAL)
+  ===================================================== */
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalFiltrado / PAGE_SIZE)
+  )
+
+  const itemsPaginados = itemsFiltrados.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  )
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(p => p + 1)
+    }
+  }
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(p => p - 1)
+    }
+  }
 
   /* =====================================================
      RENDER
   ===================================================== */
-
   return (
-    <div className="h-full flex flex-col px-6 pt-6 pb-4 text-slate-200">
+    <div className="p-6 space-y-6">
 
-      {/* ================= HEADER ================= */}
+      <SectionHeader
+        title="Stock"
+        subtitle="Control, auditoría y ajustes manuales"
+        actions={
+          puedeElegirSucursal && (
+            <div className="w-64">
+              <Select
+                value={sucursalId}
+                onChange={(e) => {
+                  const params =
+                    new URLSearchParams(searchParams)
 
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:justify-between md:items-end">
+                  params.set('sucursalId', e.target.value)
+                  setSearchParams(params)
+                }}
+              >
+                {sucursales.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.nombre}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )
+        }
+      />
 
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-100">
-            Administración de Stock
-          </h1>
+      {/* FILTROS + KPIs */}
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
 
-          <p className="text-sm text-slate-400">
-            Control, auditoría y ajustes manuales
-          </p>
-        </div>
-
-        {puedeElegirSucursal && (
-          <div className="w-full md:w-64">
-            <select
-              className="
-                w-full
-                bg-slate-900
-                border border-slate-800
-                rounded-lg
-                px-3 py-2
-                text-sm
-                text-slate-200
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500/40
-                focus:border-blue-500/40
-                transition
-              "
-              value={sucursalId}
-              onChange={(e) => {
-                const params =
-                  new URLSearchParams(searchParams)
-
-                params.set(
-                  'sucursalId',
-                  e.target.value
-                )
-
-                setSearchParams(params)
-              }}
-            >
-              {sucursales.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-      </div>
-
-      {/* ================= ESTADOS ================= */}
-
-      <div className="mb-4">
-        <StockEstadoButtons
-          value={estadoFilter}
-          onChange={setEstadoFilter}
-          conteo={conteoEstados}
-        />
-      </div>
-
-      {/* ================= FILTROS ================= */}
-
-      <div className="mb-4">
-        <StockFilters
-          searchValue={search}
-          onSearchChange={setSearch}
-          proveedorValue={proveedorFilter}
-          onProveedorChange={setProveedorFilter}
-          proveedores={proveedoresUnicos}
-        />
-      </div>
-
-      {/* ================= LOADING ================= */}
-
-      {isLoading && (
-        <div className="text-sm text-slate-400">
-          Cargando stock...
-        </div>
-      )}
-
-      {/* ================= ERROR ================= */}
-
-      {isError && (
-        <div className="text-sm text-red-400">
-          Error al cargar stock
-        </div>
-      )}
-
-      {/* ================= TABLA ================= */}
-
-      {!isLoading && !isError && (
-        <div className="flex-1 overflow-y-auto">
-          <AdminStockTable
-            items={items}
-            onAjustar={(stockId) =>
-              setSelectedStockId(stockId)
-            }
+        <div className="flex-1">
+          <StockFilters
+            searchValue={search}
+            onSearchChange={setSearch}
+            proveedorValue={proveedorFilter}
+            onProveedorChange={setProveedorFilter}
+            proveedores={proveedoresUnicos}
           />
         </div>
-      )}
 
-      {/* ================= MODAL ================= */}
+        <div className="flex gap-3 flex-wrap lg:justify-end">
+
+          <Surface
+            onClick={() => setEstadoFilter('TODOS')}
+            className={`
+              h-[52px] px-4 flex flex-col justify-center
+              min-w-[90px] cursor-pointer transition
+              ${estadoFilter === 'TODOS'
+                ? 'ring-2 ring-primary'
+                : 'hover:border-border/60'}
+            `}
+          >
+            <div className="text-[10px] text-muted-foreground leading-none">
+              TODOS
+            </div>
+            <div className="text-base font-semibold">
+              {totalGeneral}
+            </div>
+          </Surface>
+
+          {Object.entries(conteoEstados).map(
+            ([estado, cantidad]) => (
+              <Surface
+                key={estado}
+                onClick={() =>
+                  setEstadoFilter(
+                    estado as EstadoStock
+                  )
+                }
+                className={`
+                  h-[52px] px-4 flex flex-col justify-center
+                  min-w-[90px] cursor-pointer transition
+                  ${estadoFilter === estado
+                    ? 'ring-2 ring-primary'
+                    : 'hover:border-border/60'}
+                `}
+              >
+                <div className="text-[10px] text-muted-foreground leading-none">
+                  {estado}
+                </div>
+                <div className="text-base font-semibold">
+                  {cantidad}
+                </div>
+              </Surface>
+            )
+          )}
+
+        </div>
+
+      </div>
+
+      <AdminStockTable
+        items={itemsPaginados}
+        onAjustar={setSelectedStockId}
+      />
+
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">
+          Página {page} de {totalPages} · {totalFiltrado} resultados
+        </span>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrevPage}
+            disabled={page === 1}
+          >
+            Anterior
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextPage}
+            disabled={page === totalPages}
+          >
+            Siguiente
+          </Button>
+        </div>
+      </div>
 
       <StockAjusteModal
         open={Boolean(selectedStockId)}
-        onClose={() =>
-          setSelectedStockId(null)
-        }
+        onClose={() => setSelectedStockId(null)}
         onConfirm={(cantidad, motivo) => {
-
           if (!selectedStockId) return
 
           ajusteMutation.mutate({

@@ -1,8 +1,8 @@
 import { api } from '@/shared/api/api'
 
-/* =========================================
+/* =====================================================
    POS
-========================================= */
+===================================================== */
 
 export interface StockSucursalDTO {
   productoId: string
@@ -20,20 +20,41 @@ export async function obtenerStockSucursal(
   return data
 }
 
-/* =========================================
-   ADMIN
-========================================= */
+/* =====================================================
+   ADMIN - TYPES (SIN PAGINACIÓN BACKEND)
+===================================================== */
 
-export async function obtenerStockAdmin(
+export interface ListarStockAdminParams {
   sucursalId: string
-) {
+}
+
+export interface ListarStockAdminResponse<T> {
+  data: T[]
+  total: number
+}
+
+/* =====================================================
+   ADMIN - QUERIES
+===================================================== */
+
+export async function obtenerStockAdmin<T>(
+  params: ListarStockAdminParams
+): Promise<ListarStockAdminResponse<T>> {
+
   const { data } = await api.get(
     '/admin/stock',
-    { params: { sucursalId } }
+    { params }
   )
 
-  return data
+  return {
+    data: data.data ?? [],
+    total: data.total ?? 0,
+  }
 }
+
+/* =====================================================
+   ADMIN - MUTATIONS
+===================================================== */
 
 export async function ajustarStockAdmin(
   stockId: string,

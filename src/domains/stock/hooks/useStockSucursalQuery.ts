@@ -17,16 +17,19 @@ export function useStockSucursalQuery(
     isFetching,
     error,
   } = useQuery({
-    queryKey: stockKeys.sucursal(sucursalId as string),
+    queryKey: stockKeys.sucursal(sucursalId),
 
     queryFn: () => {
-      if (!sucursalId) return Promise.resolve([])
+      if (!sucursalId) {
+        throw new Error('sucursalId requerido')
+      }
+
       return obtenerStockSucursal(sucursalId)
     },
 
-    enabled: !!sucursalId,
+    enabled: Boolean(sucursalId),
 
-    // 🔥 Operativo
+    // 🔥 Operativo POS
     staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: false,

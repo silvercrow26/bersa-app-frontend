@@ -1,5 +1,17 @@
 import type { AdminStockItem } from '@/domains/stock/domain/stock.types'
 
+import {
+  Table,
+  TableContent,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from '@/shared/ui/table/table'
+
+import { Button } from '@/shared/ui/button/button'
+
 interface Props {
   items: AdminStockItem[]
   onAjustar: (stockId: string) => void
@@ -9,60 +21,52 @@ export default function AdminStockTable({
   items,
   onAjustar,
 }: Props) {
-
   return (
-    <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+    <Table>
+      <TableContent>
 
-      <table className="w-full text-sm">
-
-        <thead className="bg-slate-800 text-slate-400">
-          <tr>
-            <th className="text-left px-4 py-3">
-              Producto
-            </th>
-            <th className="text-right px-4 py-3">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Producto</TableHead>
+            <TableHead className="text-right">
               Cantidad
-            </th>
-            <th className="text-right px-4 py-3">
+            </TableHead>
+            <TableHead className="w-[120px] text-right">
               Acción
-            </th>
-          </tr>
-        </thead>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
 
-        <tbody>
+        <TableBody>
           {items.map(item => (
-            <tr
-              key={item.stockId}
-              className="border-t border-slate-800"
-            >
-              <td className="px-4 py-3">
+            <TableRow key={item.stockId}>
+
+              {/* Producto */}
+              <TableCell className="font-medium">
                 {item.nombreProducto}
-              </td>
+              </TableCell>
 
-              <td className="px-4 py-3 text-right">
+              {/* Cantidad */}
+              <TableCell className="text-right font-mono">
                 {item.cantidad}
-              </td>
+              </TableCell>
 
-              <td className="px-4 py-3 text-right">
-                <button
-                  onClick={() =>
-                    onAjustar(item.stockId)
-                  }
-                  className="
-                    text-blue-400
-                    hover:text-blue-300
-                    text-xs
-                    transition
-                  "
+              {/* Acción */}
+              <TableCell className="text-right">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onAjustar(item.stockId)}
                 >
                   Ajustar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+                </Button>
+              </TableCell>
 
-      </table>
-    </div>
+            </TableRow>
+          ))}
+        </TableBody>
+
+      </TableContent>
+    </Table>
   )
 }

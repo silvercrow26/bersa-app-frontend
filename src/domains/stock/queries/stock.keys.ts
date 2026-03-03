@@ -7,6 +7,11 @@ export const stockKeys = {
   sucursal: (sucursalId?: string) =>
     [...stockKeys.lists(), 'sucursal', sucursalId] as const,
 
-  admin: (sucursalId?: string) =>
-    [...stockKeys.lists(), 'admin', sucursalId] as const,
+  admin: {
+    all: () =>
+      [...stockKeys.all, 'admin'] as const,
+
+    list: (sucursalId?: string) =>
+      [...stockKeys.admin.all(), 'list', sucursalId] as const,
+  },
 }

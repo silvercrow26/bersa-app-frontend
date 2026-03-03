@@ -8,7 +8,9 @@ interface UpdateStockHabilitadoPayload {
   habilitado: boolean
 }
 
-export function useUpdateStockHabilitadoMutation() {
+export function useUpdateStockHabilitadoMutation(
+  sucursalId?: string
+) {
   const queryClient = useQueryClient()
 
   return useMutation<
@@ -20,9 +22,10 @@ export function useUpdateStockHabilitadoMutation() {
       toggleStockHabilitado(stockId, habilitado),
 
     onSuccess: () => {
-      // 🔥 refresca todo el dominio stock
+      if (!sucursalId) return
+
       queryClient.invalidateQueries({
-        queryKey: stockKeys.all,
+        queryKey: stockKeys.admin.list(sucursalId),
       })
     },
   })
