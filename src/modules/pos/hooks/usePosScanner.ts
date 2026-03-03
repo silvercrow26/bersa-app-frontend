@@ -1,8 +1,11 @@
 import { useScannerFocus } from '../scanner/hooks/useScannerFocus'
 
-export function usePosScanner() {
+export function usePosScanner(enabled: boolean) {
   const { scannerRef, focusScanner } =
-    useScannerFocus()
+    useScannerFocus(enabled)
 
-  return { scannerRef, focusScanner }
+  return {
+    scannerRef,
+    focusScanner,
+  }
 }

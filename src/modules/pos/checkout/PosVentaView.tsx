@@ -17,6 +17,9 @@ import SeleccionarTipoPagoModal from '../pago/ui/SeleccionarTipoPagoModal'
 /* ---------- Documento ---------- */
 import DocumentoReceptorModal from './documento/DocumentoReceptorModal'
 
+/* ---------- Caja ---------- */
+import { useCaja } from '../caja/context/CajaProvider'
+
 /* ---------- Types ---------- */
 import type { Producto } from '@/domains/producto/domain/producto.types'
 import type { EstadoCobro } from '@/domains/venta/domain/cobro/cobro.types'
@@ -103,6 +106,26 @@ function PosVentaView({
   pago,
 }: PosVentaViewProps) {
 
+  /* =====================================================
+     Caja state
+  ===================================================== */
+
+  const { aperturaActiva } = useCaja()
+
+  /* =====================================================
+     Overlay real del POS
+  ===================================================== */
+
+  const isOverlayOpen =
+    !aperturaActiva ||          // 🔒 Caja no abierta
+    pago.showTipoPago ||       // 💳 Selector tipo pago
+    pago.showPayment ||        // 💰 Modal pago
+    showReceptor               // 🧾 Modal receptor
+
+  /* =====================================================
+     Handlers
+  ===================================================== */
+
   const handleAddProductFromGrid = useCallback(
     (producto: Producto) => {
       onAddProduct(producto)
@@ -114,7 +137,13 @@ function PosVentaView({
 
   return (
     <>
-      <ProductScanner scannerRef={scannerRef} onAddProduct={onAddProduct} />
+      {/* 🔥 Scanner SOLO cuando POS operativo */}
+      {!isOverlayOpen && (
+        <ProductScanner
+          scannerRef={scannerRef}
+          onAddProduct={onAddProduct}
+        />
+      )}
 
       <div className="pt-2 flex-1 flex flex-col min-h-0">
         <div className="grid grid-cols-[2fr_1fr] gap-4 flex-1 min-h-0">
@@ -139,7 +168,7 @@ function PosVentaView({
             </div>
           </div>
 
-          {/* DERECHA — TODO controlado por Cart */}
+          {/* DERECHA */}
           <div className="flex flex-col h-[calc(100vh-140px)]">
             <Cart
               items={cart}
@@ -155,9 +184,13 @@ function PosVentaView({
               cargandoCaja={cargandoCaja}
             />
           </div>
+
         </div>
       </div>
 
+      {/* ===============================
+         Selector tipo pago
+      =============================== */}
       {pago.showTipoPago && (
         <SeleccionarTipoPagoModal
           onClose={pago.closeAll}
@@ -165,6 +198,9 @@ function PosVentaView({
         />
       )}
 
+      {/* ===============================
+         Modal pago
+      =============================== */}
       {pago.showPayment &&
         pago.modoPago &&
         pago.estado && (
@@ -182,6 +218,9 @@ function PosVentaView({
           />
         )}
 
+      {/* ===============================
+         Modal receptor
+      =============================== */}
       <DocumentoReceptorModal
         open={showReceptor}
         onClose={onCloseReceptor}

@@ -3,37 +3,32 @@ import { useCallback, useEffect, useRef } from 'react'
 /**
  * Hook de infraestructura UI para el scanner.
  *
- * - Mantiene el foco en el input del scanner
- * - Expone la ref del input
- * - Permite forzar el foco manualmente
- *
- * No conoce POS, venta ni caja.
+ * - Mantiene el foco SOLO cuando está habilitado
+ * - No roba foco cuando hay overlays
  */
-export function useScannerFocus() {
-  // Ref del input invisible del scanner
+export function useScannerFocus(enabled: boolean) {
   const scannerRef = useRef<HTMLInputElement | null>(null)
 
-  // Fuerza el foco en el scanner
   const focusScanner = useCallback(() => {
+    if (!enabled) return
     scannerRef.current?.focus()
-  }, [])
+  }, [enabled])
 
-  // Mantiene el foco del scanner ante clicks en la pantalla
   useEffect(() => {
+    if (!enabled) return
+
     const keepFocus = (e: MouseEvent) => {
       const target = e.target as HTMLElement
 
-      // Si el foco va a un input editable, no lo robamos
+      // Si el usuario hace click en algo editable → NO robar foco
       if (
         target.closest(
           "input, textarea, [contenteditable='true']"
-        ) &&
-        !target.closest('#scanner-input')
+        )
       ) {
         return
       }
 
-      // Re-enfocamos el scanner en el siguiente frame
       requestAnimationFrame(() => {
         scannerRef.current?.focus()
       })
@@ -42,12 +37,9 @@ export function useScannerFocus() {
     document.addEventListener('mousedown', keepFocus)
 
     return () => {
-      document.removeEventListener(
-        'mousedown',
-        keepFocus
-      )
+      document.removeEventListener('mousedown', keepFocus)
     }
-  }, [])
+  }, [enabled])
 
   return {
     scannerRef,

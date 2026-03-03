@@ -1,6 +1,15 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useAdminVentaDetalleQuery } from '@/domains/venta/hooks/useAdminVentasQuery'
+
+import { useAdminVentaDetalleQuery }
+  from '@/domains/venta/hooks/useAdminVentasQuery'
+import { useAdminAnularVentaMutation }
+  from '@/domains/venta/hooks/useAdminAnularVentaMutation'
+
 import VentaEstadoBadge from '../ui/VentaEstadoBadge'
+
+import ConfirmModal from '@/shared/ui/ConfirmModal'
+import { useToast } from '@/shared/ui/toast/ToastProvider'
 
 import { Button } from '@/shared/ui/button/button'
 import { Badge } from '@/shared/ui/badge/badge'
@@ -17,11 +26,35 @@ import {
 } from '@/shared/ui/table/table'
 
 export default function AdminVentaDetallePage() {
-  const { ventaId } = useParams()
+
+  const { ventaId } = useParams<{ ventaId: string }>()
   const navigate = useNavigate()
 
-  const { data, isLoading } =
-    useAdminVentaDetalleQuery(ventaId)
+  const { showToast } = useToast()
+
+  const {
+    data,
+    isLoading,
+    isError,
+  } = useAdminVentaDetalleQuery(ventaId)
+
+  const {
+    mutate: anularVenta,
+    isPending,
+  } = useAdminAnularVentaMutation()
+
+  const [openConfirm, setOpenConfirm] =
+    useState(false)
+
+  /* ================= VALIDACIONES ================= */
+
+  if (!ventaId) {
+    return (
+      <div className="p-10 text-danger">
+        ID de venta inválido
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
@@ -31,7 +64,7 @@ export default function AdminVentaDetallePage() {
     )
   }
 
-  if (!data) {
+  if (isError || !data) {
     return (
       <div className="p-10 text-danger">
         Error al cargar venta
@@ -74,7 +107,23 @@ export default function AdminVentaDetallePage() {
 
         </div>
 
-        <VentaEstadoBadge estado={data.estado} />
+        {/* Estado + Anular */}
+        <div className="flex items-center gap-4">
+
+          <VentaEstadoBadge estado={data.estado} />
+
+          {data.estado === 'FINALIZADA' && (
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={isPending}
+              onClick={() => setOpenConfirm(true)}
+            >
+              {isPending ? 'Anulando...' : 'Anular'}
+            </Button>
+          )}
+
+        </div>
 
       </div>
 
@@ -106,7 +155,7 @@ export default function AdminVentaDetallePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-        {/* ===== DETALLE (70%) ===== */}
+        {/* ===== DETALLE ===== */}
 
         <div className="lg:col-span-2 space-y-4">
 
@@ -114,7 +163,7 @@ export default function AdminVentaDetallePage() {
             Detalle
           </h2>
 
-          <Table className="max-h-[500px]">
+          <Table>
             <TableContent>
 
               <TableHeader>
@@ -161,11 +210,9 @@ export default function AdminVentaDetallePage() {
 
         </div>
 
-        {/* ===== PANEL DERECHO (30%) ===== */}
+        {/* ===== PANEL DERECHO ===== */}
 
         <div className="space-y-10">
-
-          {/* Documento */}
 
           <div className="space-y-4">
 
@@ -201,8 +248,6 @@ export default function AdminVentaDetallePage() {
 
           </div>
 
-          {/* Pagos */}
-
           <div className="space-y-4">
 
             <h2 className="text-lg font-medium">
@@ -234,6 +279,40 @@ export default function AdminVentaDetallePage() {
 
       </div>
 
+      {/* ================= CONFIRM MODAL ================= */}
+
+      <ConfirmModal
+        open={openConfirm}
+        title="Anular venta"
+        description="¿Estás seguro que deseas anular esta venta? Esta acción no se puede deshacer."
+        confirmText={isPending ? 'Anulando...' : 'Anular'}
+        cancelText="Cancelar"
+        onCancel={() => {
+          if (!isPending) {
+            setOpenConfirm(false)
+          }
+        }}
+        onConfirm={() => {
+          if (isPending) return
+
+          anularVenta(data.id, {
+            onSuccess: () => {
+              showToast(
+                `Venta ${data.folio} anulada correctamente.`,
+                'success'
+              )
+              setOpenConfirm(false)
+            },
+            onError: () => {
+              showToast(
+                'No se pudo anular la venta.',
+                'error'
+              )
+            },
+          })
+        }}
+      />
+
     </section>
   )
 }
@@ -251,18 +330,15 @@ function Metric({
 }) {
   return (
     <div className="space-y-2">
-
       <p className="text-sm text-muted-foreground">
         {label}
       </p>
-
       <p
         className={`text-xl font-semibold ${highlight ? 'text-success' : ''
           }`}
       >
         {value}
       </p>
-
     </div>
   )
 }

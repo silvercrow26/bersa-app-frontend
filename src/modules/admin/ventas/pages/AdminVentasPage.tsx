@@ -9,110 +9,111 @@ import VentasTable from '../ui/VentasTable'
 import VentasFilters from '../ui/VentasFilters'
 
 import { SectionHeader } from '@/shared/ui/section-header/section-header'
-import { Card } from '@/shared/ui/card/Card'
 import { Button } from '@/shared/ui/button/button'
-import { Skeleton } from '@/shared/ui/skeleton/skeleton'
+
+const PAGE_SIZE = 10
 
 export default function AdminVentasPage() {
+  /* =====================================================
+     State
+  ===================================================== */
 
   const [filters, setFilters] =
     useState<ListarVentasAdminParams>({
       page: 1,
-      limit: 10,
+      limit: PAGE_SIZE,
     })
+
+  /* =====================================================
+     Query
+  ===================================================== */
 
   const { data, isLoading } =
     useAdminVentasQuery(filters)
 
   const ventas = data?.data ?? []
   const page = data?.page ?? 1
+  const total = data?.total ?? 0
   const totalPages = data?.totalPages ?? 1
 
-  return (
-    <section className="p-6 space-y-6">
+  /* =====================================================
+     Handlers
+  ===================================================== */
 
-      {/* ===== Header ===== */}
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setFilters(prev => ({
+        ...prev,
+        page: (prev.page ?? 1) + 1,
+      }))
+    }
+  }
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setFilters(prev => ({
+        ...prev,
+        page: (prev.page ?? 1) - 1,
+      }))
+    }
+  }
+
+  /* =====================================================
+     Render
+  ===================================================== */
+
+  return (
+    <div className="p-6 space-y-6">
 
       <SectionHeader
         title="Ventas"
         subtitle="Historial de ventas del sistema"
       />
 
-      {/* ===== Filtros ===== */}
-
       <VentasFilters
         value={filters}
+        total={total}
         onChange={next =>
           setFilters({
             ...next,
             page: 1,
-            limit: 10,
+            limit: PAGE_SIZE,
           })
         }
       />
 
-      {/* ===== Tabla ===== */}
+      <VentasTable
+        ventas={ventas}
+        loading={isLoading}
+      />
 
-      <Card className="p-0 overflow-hidden">
+      {/* Paginación simple (idéntica a Productos) */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">
+          Página {page} de {totalPages} · {total} resultados
+        </span>
 
-        {isLoading ? (
-          <div className="p-6 space-y-3">
-            <Skeleton className="h-6 w-1/3" />
-            <Skeleton className="h-6 w-1/2" />
-            <Skeleton className="h-6 w-2/3" />
-          </div>
-        ) : (
-          <VentasTable ventas={ventas} />
-        )}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrevPage}
+            disabled={page === 1}
+          >
+            Anterior
+          </Button>
 
-      </Card>
-
-      {/* ===== Paginación ===== */}
-
-      {data && totalPages > 1 && (
-
-        <div className="flex items-center justify-between">
-
-          <p className="text-sm text-muted-foreground">
-            Página {page} de {totalPages}
-          </p>
-
-          <div className="flex gap-2">
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1}
-              onClick={() =>
-                setFilters(prev => ({
-                  ...prev,
-                  page: prev.page! - 1,
-                }))
-              }
-            >
-              ← Anterior
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === totalPages}
-              onClick={() =>
-                setFilters(prev => ({
-                  ...prev,
-                  page: prev.page! + 1,
-                }))
-              }
-            >
-              Siguiente →
-            </Button>
-
-          </div>
-
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextPage}
+            disabled={page === totalPages}
+          >
+            Siguiente
+          </Button>
         </div>
+      </div>
 
-      )}
-
-    </section>
+    </div>
   )
 }

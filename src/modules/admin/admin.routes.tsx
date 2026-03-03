@@ -46,21 +46,15 @@ export const AdminRoutes = (
       </RoleRoute>
     }
   >
-    {/* ===============================
-        CORE
-    =============================== */}
+
+    {/* CORE */}
     <Route path="categorias" element={<CategoriasPage />} />
     <Route path="productos" element={<AdminProductosPage />} />
     <Route path="proveedores" element={<ProveedoresPage />} />
     <Route path="stock" element={<AdminStockPage />} />
-    <Route
-      path="abastecimiento"
-      element={<AbastecimientoPage />}
-    />
+    <Route path="abastecimiento" element={<AbastecimientoPage />} />
 
-    {/* ===============================
-        APERTURAS (solo admin)
-    =============================== */}
+    {/* APERTURAS */}
     <Route
       element={
         <RoleRoute allow={['ADMIN']}>
@@ -68,18 +62,12 @@ export const AdminRoutes = (
         </RoleRoute>
       }
     >
-      <Route
-        path="aperturas"
-        element={<AdminAperturasPage />}
-      />
-      <Route
-        path="aperturas/:id"
-        element={<AdminAperturaDetallePage />}
-      />
+      <Route path="aperturas" element={<AdminAperturasPage />} />
+      <Route path="aperturas/:id" element={<AdminAperturaDetallePage />} />
     </Route>
 
     {/* ===============================
-        VENTAS (admin / encargado)
+        VENTAS (PLANO, NO ANIDADO)
     =============================== */}
     <Route
       element={
@@ -98,32 +86,14 @@ export const AdminRoutes = (
       />
     </Route>
 
-    {/* ===============================
-        PEDIDOS
-    =============================== */}
-    <Route
-      path="pedidos"
-      element={<PedidosPage />}
-    />
-    <Route
-      path="pedidos/nuevo"
-      element={<CrearPedidoPage />}
-    />
-    <Route
-      path="pedidos/:pedidoId/preparar"
-      element={<PrepararPedidoPage />}
-    />
+    {/* PEDIDOS */}
+    <Route path="pedidos" element={<PedidosPage />} />
+    <Route path="pedidos/nuevo" element={<CrearPedidoPage />} />
+    <Route path="pedidos/:pedidoId/preparar" element={<PrepararPedidoPage />} />
 
-    {/* ===============================
-        DESPACHOS
-    =============================== */}
-    <Route
-      path="despachos"
-      element={<DespachosPage />}
-    />
-    <Route
-      path="despachos/nuevo"
-      element={<CrearDespachoPage />}
-    />
+    {/* DESPACHOS */}
+    <Route path="despachos" element={<DespachosPage />} />
+    <Route path="despachos/nuevo" element={<CrearDespachoPage />} />
+
   </Route>
 )

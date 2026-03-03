@@ -24,13 +24,6 @@ export function usePosController() {
     useState<string | null>(null)
 
   /* ===============================
-     SCANNER
-  =============================== */
-
-  const { scannerRef, focusScanner } =
-    usePosScanner()
-
-  /* ===============================
      FLOWS
   =============================== */
 
@@ -53,6 +46,35 @@ export function usePosController() {
   const pagoStable = useMemo(() => pago, [pago])
 
   /* ===============================
+     CAJA
+  =============================== */
+
+  const {
+    cajaSeleccionada,
+    aperturaActiva,
+    cargando: cargandoCaja,
+  } = useCaja()
+
+  /* ===============================
+     SCANNER ENABLED STATE
+  =============================== */
+
+  const scannerEnabled =
+    !!cajaSeleccionada &&
+    !!aperturaActiva &&
+    !postVenta.open &&
+    !showReceptor &&
+    !pagoStable.showTipoPago &&
+    !pagoStable.showPayment
+
+  /* ===============================
+     SCANNER (CONTROLADO)
+  =============================== */
+
+  const { scannerRef, focusScanner } =
+    usePosScanner(scannerEnabled)
+
+  /* ===============================
      PRODUCTOS
   =============================== */
 
@@ -63,14 +85,8 @@ export function usePosController() {
   } = usePosProductos(query)
 
   /* ===============================
-     CAJA
+     BLOQUEO GLOBAL
   =============================== */
-
-  const {
-    cajaSeleccionada,
-    aperturaActiva,
-    cargando: cargandoCaja,
-  } = useCaja()
 
   const bloqueado =
     cargandoCaja ||
@@ -132,7 +148,11 @@ export function usePosController() {
       })
 
       flashHighlight(producto.id)
-      focusScanner()
+
+      // Solo enfocar si realmente está habilitado
+      if (scannerEnabled) {
+        focusScanner()
+      }
 
     },
     [
@@ -141,6 +161,7 @@ export function usePosController() {
       stockMap,
       focusScanner,
       flashHighlight,
+      scannerEnabled,
     ]
   )
 

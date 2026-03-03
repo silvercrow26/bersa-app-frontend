@@ -5,9 +5,9 @@ import type {
   VentaAdminDetalle,
 } from '../domain/venta-admin.types'
 
-/* ========================================
+/* =====================================================
    PARAMS
-======================================== */
+===================================================== */
 
 export interface ListarVentasAdminParams {
   from?: string
@@ -22,9 +22,9 @@ export interface ListarVentasAdminParams {
   limit?: number
 }
 
-/* ========================================
+/* =====================================================
    RESPONSE
-======================================== */
+===================================================== */
 
 export interface ListarVentasAdminResponse {
   data: VentaAdmin[]
@@ -33,9 +33,9 @@ export interface ListarVentasAdminResponse {
   totalPages: number
 }
 
-/* ========================================
+/* =====================================================
    LISTAR VENTAS (ADMIN)
-======================================== */
+===================================================== */
 
 export const listarVentasAdmin = async (
   params: ListarVentasAdminParams
@@ -47,31 +47,31 @@ export const listarVentasAdmin = async (
   )
 
   return {
-    data: data.data.map((v: any): VentaAdmin => ({
-      id: v._id,
+    data: (data.data ?? []).map(
+      (v: any): VentaAdmin => ({
+        id: v._id,
 
-      folio: v.folio,
+        folio: v.folio,
+        numeroVenta: v.numeroVenta,
+        aperturaCajaId: v.aperturaCajaId,
 
-      numeroVenta: v.numeroVenta,
+        total: v.total,
+        totalCobrado: v.totalCobrado,
+        estado: v.estado,
 
-      aperturaCajaId: v.aperturaCajaId,
+        documentoTributario: {
+          tipo: v.documentoTributario?.tipo,
+        },
 
-      total: v.total,
-      totalCobrado: v.totalCobrado,
-      estado: v.estado,
+        usuarioId: v.usuarioId,
+        cajaId: v.cajaId,
+        sucursalId: v.sucursalId,
 
-      documentoTributario: {
-        tipo: v.documentoTributario?.tipo,
-      },
+        createdAt: v.createdAt,
 
-      usuarioId: v.usuarioId,
-      cajaId: v.cajaId,
-      sucursalId: v.sucursalId,
-
-      createdAt: v.createdAt,
-
-      pagos: [],
-    })),
+        pagos: [],
+      })
+    ),
 
     page: data.page,
     total: data.total,
@@ -79,9 +79,9 @@ export const listarVentasAdmin = async (
   }
 }
 
-/* ========================================
+/* =====================================================
    DETALLE VENTA (ADMIN)
-======================================== */
+===================================================== */
 
 export const obtenerVentaAdminDetalle = async (
   ventaId: string
@@ -93,10 +93,9 @@ export const obtenerVentaAdminDetalle = async (
 
   return {
     id: data._id,
+
     folio: data.folio,
-
     numeroVenta: data.numeroVenta,
-
     estado: data.estado,
 
     usuarioId: data.usuarioId,
@@ -110,7 +109,7 @@ export const obtenerVentaAdminDetalle = async (
     totalCobrado: data.totalCobrado,
     createdAt: data.createdAt,
 
-    items: data.items.map((i: any) => ({
+    items: (data.items ?? []).map((i: any) => ({
       productoId: i.productoId,
       nombre: i.nombre,
       cantidad: i.cantidad,
@@ -118,9 +117,22 @@ export const obtenerVentaAdminDetalle = async (
       subtotal: i.subtotal,
     })),
 
-    pagos: data.pagos.map((p: any) => ({
+    pagos: (data.pagos ?? []).map((p: any) => ({
       tipo: p.tipo,
       monto: p.monto,
     })),
   }
+}
+
+/* =====================================================
+   ANULAR VENTA (ADMIN)
+===================================================== */
+
+export const anularVentaAdmin = async (
+  ventaId: string
+): Promise<void> => {
+
+  await api.post(
+    `/ventas/${ventaId}/anular`
+  )
 }

@@ -15,6 +15,10 @@ import type {
 import { ventaKeys } from '../queries/venta.keys'
 import { useDebounce } from '@/shared/hooks/useDebounce'
 
+/* =====================================================
+   Utils
+===================================================== */
+
 function cleanParams(
   params?: ListarVentasAdminParams
 ) {
@@ -26,6 +30,10 @@ function cleanParams(
     )
   ) as ListarVentasAdminParams
 }
+
+/* =====================================================
+   LISTADO ADMIN
+===================================================== */
 
 export const useAdminVentasQuery = (
   params: ListarVentasAdminParams
@@ -54,17 +62,25 @@ export const useAdminVentasQuery = (
   })
 }
 
+/* =====================================================
+   DETALLE ADMIN
+===================================================== */
+
 export const useAdminVentaDetalleQuery = (
   ventaId?: string
 ) => {
+
+  const enabled = Boolean(ventaId)
+
   return useQuery<VentaAdminDetalle>({
-    queryKey:
-      ventaKeys.admin.detalle(ventaId),
+    queryKey: enabled
+      ? ventaKeys.admin.detalle(ventaId)
+      : ventaKeys.admin.detalle(''),
 
     queryFn: () =>
-      obtenerVentaAdminDetalle(ventaId!),
+      obtenerVentaAdminDetalle(ventaId as string),
 
-    enabled: Boolean(ventaId),
+    enabled,
     staleTime: 1000 * 30,
   })
 }

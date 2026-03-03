@@ -19,8 +19,12 @@ function AbrirCajaContenido() {
   const [montoInicial, setMontoInicial] =
     useState('')
 
-  if (!cajaSeleccionada || aperturaActiva)
-    return null
+  /* =====================================================
+     Control de render (NO desmontar)
+  ===================================================== */
+
+  const shouldRender =
+    !!cajaSeleccionada && !aperturaActiva
 
   /* =====================================================
      Validaciones UI
@@ -54,7 +58,9 @@ function AbrirCajaContenido() {
         e.preventDefault()
         handleConfirmar()
       }}
-      className="w-full max-w-sm"
+      className={`w-full max-w-sm ${
+        !shouldRender ? 'hidden' : ''
+      }`}
     >
       <Card className="overflow-hidden">
 
@@ -79,7 +85,7 @@ function AbrirCajaContenido() {
               Caja seleccionada
             </div>
             <div className="mt-1 text-lg font-semibold text-primary">
-              {cajaSeleccionada.nombre}
+              {cajaSeleccionada?.nombre}
             </div>
           </div>
 
