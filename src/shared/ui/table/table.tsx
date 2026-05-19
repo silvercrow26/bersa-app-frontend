@@ -12,7 +12,7 @@ export function Table({
   return (
     <div
       className={cn(
-        "w-full overflow-auto rounded-xl border border-border bg-surface",
+        "w-full min-w-0 overflow-x-auto rounded-xl border border-border bg-surface",
         className
       )}
       {...props}
@@ -61,7 +61,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        "h-10 px-4 text-left font-medium",
+        "h-10 px-4 text-left font-medium whitespace-nowrap",
         className
       )}
       {...props}
@@ -110,7 +110,7 @@ export function TableCell({
   return (
     <td
       className={cn(
-        "px-4 py-3 align-middle",
+        "px-4 py-3 align-middle whitespace-nowrap",
         className
       )}
       {...props}

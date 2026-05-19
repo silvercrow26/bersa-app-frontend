@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Button } from '@/shared/ui/button/button'
-import { Surface } from '../surface/Surface'
+import { Surface } from '../surface/surface'
 
 interface ConfirmDialogProps {
   open: boolean

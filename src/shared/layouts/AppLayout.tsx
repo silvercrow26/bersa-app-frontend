@@ -5,15 +5,35 @@ import Header from '../components/Header'
 
 export default function AppLayout() {
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
+
+      {/* Sidebar */}
       <Sidebar />
 
+      {/* Contenedor principal */}
       <div className="flex flex-col flex-1 min-w-0">
+
+        {/* Header */}
         <Header />
-        <main className="flex-1 min-h-0 px-4 py-3">
-          <Outlet />
+
+        {/* Content */}
+        <main className="flex-1 min-w-0 overflow-hidden">
+
+          <div
+            className="
+              relative
+              h-full
+              overflow-x-auto
+              px-4 py-3
+            "
+          >
+            <Outlet />
+          </div>
+
         </main>
+
       </div>
+
     </div>
   )
 }

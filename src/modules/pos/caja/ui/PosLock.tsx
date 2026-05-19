@@ -11,7 +11,7 @@ function PosLock({ open, children }: PosLockProps) {
   return (
     <div
       className="
-        fixed inset-0 z-50
+        absolute inset-0 z-50
         bg-background/70
         backdrop-blur-sm
         flex items-center justify-center

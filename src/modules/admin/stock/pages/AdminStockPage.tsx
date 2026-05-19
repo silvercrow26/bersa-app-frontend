@@ -25,7 +25,7 @@ import { StockAjusteModal } from '../ui/StockAjusteModal'
 import { SectionHeader } from '@/shared/ui/section-header/section-header'
 import { Button } from '@/shared/ui/button/button'
 import { Select } from '@/shared/ui/select/select'
-import { Surface } from '@/shared/ui/surface/Surface'
+import { Surface } from '@/shared/ui/surface/surface'
 
 type EstadoFiltro = 'TODOS' | EstadoStock
 

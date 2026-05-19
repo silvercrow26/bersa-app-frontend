@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Surface } from '@/shared/ui/surface/Surface'
+import { Surface } from '@/shared/ui/surface/surface'
 import { Select } from '@/shared/ui/select/select'
 import { Input } from '@/shared/ui/input/input'
 

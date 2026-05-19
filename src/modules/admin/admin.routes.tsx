@@ -18,11 +18,11 @@ import AdminAperturaDetallePage from './aperturas/pages/AdminAperturaDetallePage
 /* ===============================
    CORE
 =============================== */
-import CategoriasPage from './categorias/CategoriasPage'
+import AdminCategoriasPage from './categorias/pages/AdminCategoriasPage'
 import AdminProductosPage from './productos/pages/AdminProductosPage'
 import AdminStockPage from './stock/pages/AdminStockPage'
-import ProveedoresPage from './proveedores/ProveedoresPage'
-import AbastecimientoPage from './abastecimiento/AbastecimientoPage'
+import AdminProveedoresPage from './proveedores/pages/AdminProveedoresPage'
+import AdminAbastecimientosPage from './abastecimientos/pages/AdminAbastecimientosPage'
 
 /* ===============================
    PEDIDOS
@@ -36,6 +36,8 @@ import CrearPedidoPage from './pedido/ui/crear-pedido/CrearPedidoPage'
 =============================== */
 import DespachosPage from './despachos/ui/despachos/DespachosPage'
 import CrearDespachoPage from './despachos/ui/crear-despacho/CrearDespachoPage'
+import AdminAbastecimientoDetallePage from './abastecimientos/pages/AdminAbastecimientoDetallePage'
+import AdminMovimientosPage from './movimientos/pages/AdminMovimientosPage'
 
 export const AdminRoutes = (
   <Route
@@ -48,12 +50,14 @@ export const AdminRoutes = (
   >
 
     {/* CORE */}
-    <Route path="categorias" element={<CategoriasPage />} />
-    <Route path="productos" element={<AdminProductosPage />} />
-    <Route path="proveedores" element={<ProveedoresPage />} />
-    <Route path="stock" element={<AdminStockPage />} />
-    <Route path="abastecimiento" element={<AbastecimientoPage />} />
 
+    <Route path="movimientos" element={<AdminMovimientosPage />} />
+    <Route path="categorias" element={<AdminCategoriasPage />} />
+    <Route path="productos" element={<AdminProductosPage />} />
+    <Route path="proveedores" element={<AdminProveedoresPage />} />
+    <Route path="stock" element={<AdminStockPage />} />
+    <Route path="abastecimiento" element={<AdminAbastecimientosPage />} />
+    <Route path="abastecimientos/:id" element={<AdminAbastecimientoDetallePage />} />
     {/* APERTURAS */}
     <Route
       element={

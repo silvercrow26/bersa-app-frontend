@@ -2,33 +2,45 @@ import { useMemo, useState, useEffect } from 'react'
 
 import ProductosFilters from '../ui/ProductosFilters'
 import ProductosTable from '../ui/ProductosTable'
+import ProductoFormModal from '../ui/ProductoFormModal'
 
 import { SectionHeader } from '@/shared/ui/section-header/section-header'
 import { Button } from '@/shared/ui/button/button'
 
 import type { Producto } from '@/domains/producto/domain/producto.types'
+
 import { useProductosAdminQuery } from '@/domains/producto/hooks/useProductosQuery'
 import { useProductoMutations } from '@/domains/producto/hooks/useProductoMutations'
+
+import { useProveedoresQuery } from '@/domains/proveedor/hooks/useProveedoresQuery'
 
 type EstadoFiltro = 'TODOS' | 'ACTIVOS' | 'INACTIVOS'
 
 const PAGE_SIZE = 10
 
 export default function AdminProductosPage() {
+
   /* =====================================================
-     State
+     STATE
   ===================================================== */
 
   const [search, setSearch] = useState('')
   const [estado, setEstado] =
     useState<EstadoFiltro>('TODOS')
+
   const [proveedorId, setProveedorId] =
-    useState<string | undefined>(undefined)
+    useState<string | undefined>()
 
   const [page, setPage] = useState(1)
 
+  const [openModal, setOpenModal] =
+    useState(false)
+
+  const [editing, setEditing] =
+    useState<Producto | null>(null)
+
   /* =====================================================
-     Query Params
+     QUERIES
   ===================================================== */
 
   const includeInactive =
@@ -46,6 +58,12 @@ export default function AdminProductosPage() {
     search: search || undefined,
   })
 
+  const {
+    data: proveedores = [],
+  } = useProveedoresQuery({
+    activo: true,
+  })
+
   const productos = data?.data ?? []
   const total = data?.total ?? 0
   const totalPages = data?.totalPages ?? 1
@@ -53,7 +71,7 @@ export default function AdminProductosPage() {
   const { toggleActivo } = useProductoMutations()
 
   /* =====================================================
-     Reset page when filters change
+     RESET PAGE
   ===================================================== */
 
   useEffect(() => {
@@ -61,38 +79,60 @@ export default function AdminProductosPage() {
   }, [search, estado])
 
   /* =====================================================
-     Derivados (solo proveedor filtro local)
+     MAP PROVEEDORES
+  ===================================================== */
+
+  const proveedorMap = useMemo(() => {
+
+    const map = new Map<string, string>()
+
+    proveedores.forEach(p => {
+      map.set(p.id, p.nombre)
+    })
+
+    return map
+
+  }, [proveedores])
+
+  /* =====================================================
+     FILTRADO POR PROVEEDOR
   ===================================================== */
 
   const productosFiltrados = useMemo(() => {
+
     if (!proveedorId) return productos
 
     return productos.filter(
       p => p.proveedorId === proveedorId
     )
+
   }, [productos, proveedorId])
 
-  const proveedores = useMemo(() => {
-    const unique = new Set<string>()
+  /* =====================================================
+     OPTIONS FILTRO PROVEEDOR
+  ===================================================== */
 
-    productos.forEach(p => {
-      if (p.proveedorId) {
-        unique.add(p.proveedorId)
-      }
-    })
+  const proveedoresOptions = useMemo(() => {
 
-    return Array.from(unique).map(id => ({
-      id,
-      nombre: id, // hasta integrar dominio proveedor
+    return proveedores.map(p => ({
+      id: p.id,
+      nombre: p.nombre,
     }))
-  }, [productos])
+
+  }, [proveedores])
 
   /* =====================================================
-     Handlers
+     HANDLERS
   ===================================================== */
 
   const handleEdit = (producto: Producto) => {
-    console.log('Editar', producto)
+    setEditing(producto)
+    setOpenModal(true)
+  }
+
+  const handleNuevo = () => {
+    setEditing(null)
+    setOpenModal(true)
   }
 
   const handleToggle = (producto: Producto) => {
@@ -112,16 +152,17 @@ export default function AdminProductosPage() {
   }
 
   /* =====================================================
-     Render
+     RENDER
   ===================================================== */
 
   return (
     <div className="p-6 space-y-6">
+
       <SectionHeader
         title="Productos"
         subtitle="Gestión completa del catálogo"
         actions={
-          <Button>
+          <Button onClick={handleNuevo}>
             + Nuevo producto
           </Button>
         }
@@ -131,7 +172,7 @@ export default function AdminProductosPage() {
         search={search}
         estado={estado}
         proveedorId={proveedorId}
-        proveedores={proveedores}
+        proveedores={proveedoresOptions}
         total={total}
         onSearchChange={setSearch}
         onEstadoChange={setEstado}
@@ -140,19 +181,23 @@ export default function AdminProductosPage() {
 
       <ProductosTable
         productos={productosFiltrados}
+        proveedorMap={proveedorMap}
         loading={isLoading}
         canEdit
         onEdit={handleEdit}
         onToggle={handleToggle}
       />
 
-      {/* Paginación simple */}
+      {/* PAGINACIÓN */}
+
       <div className="flex items-center justify-between text-sm">
+
         <span className="text-muted-foreground">
           Página {page} de {totalPages} · {total} resultados
         </span>
 
         <div className="flex gap-2">
+
           <Button
             variant="outline"
             size="sm"
@@ -170,8 +215,20 @@ export default function AdminProductosPage() {
           >
             Siguiente
           </Button>
+
         </div>
+
       </div>
+
+      <ProductoFormModal
+        open={openModal}
+        producto={editing}
+        onClose={() => {
+          setOpenModal(false)
+          setEditing(null)
+        }}
+      />
+
     </div>
   )
 }

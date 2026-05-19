@@ -1,16 +1,19 @@
-import { memo, useState } from 'react'
+import { memo } from 'react'
 import ProductoSearchInput from './ProductoSearchInput'
 
 import type { Producto } from '@/domains/producto/domain/producto.types'
 
 interface Props {
+  query: string
+  onQueryChange: (value: string) => void
+
   /**
    * Productos YA filtrados externamente
    */
   productos: Producto[]
 
   /**
-   * Acción al seleccionar un producto
+   * Acción al seleccionar
    */
   onSelect: (producto: Producto) => void
 }
@@ -18,18 +21,16 @@ interface Props {
 /**
  * ProductoAutocomplete
  *
- * Selector puntual de producto.
  * - No filtra internamente
- * - No conoce stock
  * - No conoce contexto
- * - Controla solo UI mínima
+ * - Solo renderiza resultados
  */
 function ProductoAutocomplete({
+  query,
+  onQueryChange,
   productos,
   onSelect,
 }: Props) {
-
-  const [query, setQuery] = useState<string>('')
 
   const isOpen =
     query.trim().length > 0 &&
@@ -38,65 +39,76 @@ function ProductoAutocomplete({
   return (
     <div className="relative space-y-2">
 
-      {/* ===============================
-          INPUT DE BÚSQUEDA
-      =============================== */}
+      {/* INPUT */}
+
       <ProductoSearchInput
         value={query}
         autoFocus
-        onChange={(q: string) => {
-          setQuery(q)
-        }}
+        onChange={onQueryChange}
       />
 
-      {/* ===============================
-          DROPDOWN
-      =============================== */}
+      {/* DROPDOWN */}
+
       {isOpen && (
         <div
           className="
             absolute z-50 mt-1 w-full
             max-h-64 overflow-y-auto
             rounded-xl
-            border border-slate-800
-            bg-slate-900 shadow-xl
+            border border-border
+            bg-surface
+            shadow-lg
           "
         >
+
           {productos.map(producto => (
+
             <button
               key={producto.id}
               type="button"
-              onMouseDown={() => {
-                onSelect(producto)
-                setQuery('')
-              }}
+              onMouseDown={() => onSelect(producto)}
               className="
                 flex w-full items-center justify-between
-                border-b border-slate-800
-                px-4 py-3 text-left
-                text-sm text-slate-200
-                hover:bg-slate-800
+                border-b border-border
+                px-4 py-3
+                text-left
+                text-sm
+                hover:bg-muted/40
                 last:border-b-0
               "
             >
+
+              {/* INFO */}
+
               <div>
+
                 <div className="font-medium">
                   {producto.nombre}
                 </div>
 
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-muted-foreground">
+
                   {producto.unidadBase}
+
                   {producto.codigo && ` · ${producto.codigo}`}
+
                 </div>
+
               </div>
 
-              <span className="text-xs text-emerald-400">
+              {/* ACTION */}
+
+              <span className="text-xs text-primary">
                 Agregar
               </span>
+
             </button>
+
           ))}
+
         </div>
       )}
+
     </div>
   )
 }

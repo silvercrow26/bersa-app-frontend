@@ -1,13 +1,18 @@
 import { useEscapeKey } from '@/shared/hooks/useEscapeKey'
 
+import { Surface } from '@/shared/ui/surface/surface'
+import { Button } from '@/shared/ui/button/button'
+
 interface Props {
   open: boolean
   title: string
   description?: string
   confirmText?: string
   cancelText?: string
+  loading?: boolean
   onConfirm: () => void
   onCancel: () => void
+  children?: React.ReactNode
 }
 
 export default function ConfirmModal({
@@ -16,13 +21,16 @@ export default function ConfirmModal({
   description,
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
+  loading = false,
   onConfirm,
   onCancel,
+  children,
 }: Props) {
 
   /* =====================================================
      Cerrar con ESC
   ===================================================== */
+
   useEscapeKey(open, onCancel)
 
   if (!open) return null
@@ -37,30 +45,40 @@ export default function ConfirmModal({
       />
 
       {/* CARD */}
-      <div
+      <Surface
         className="
           relative
-          w-full max-w-md
-          bg-slate-800
+          w-full
+          max-w-md
           rounded-2xl
           shadow-2xl
-          border border-slate-700
           overflow-hidden
           animate-[fadeIn_.12s_ease-out]
         "
       >
 
         {/* HEADER */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
 
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-amber-500/15 text-amber-400 flex items-center justify-center text-lg">
+
+            <div
+              className="
+                w-9 h-9
+                rounded-full
+                flex items-center justify-center
+                text-sm
+                bg-warning/15
+                text-warning
+              "
+            >
               ⚠
             </div>
 
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold">
               {title}
             </h3>
+
           </div>
 
           {/* BOTÓN X */}
@@ -70,9 +88,9 @@ export default function ConfirmModal({
               w-8 h-8
               flex items-center justify-center
               rounded-md
-              text-slate-400
-              hover:text-white
-              hover:bg-slate-700
+              text-muted-foreground
+              hover:text-foreground
+              hover:bg-surface/60
               transition
             "
           >
@@ -82,44 +100,40 @@ export default function ConfirmModal({
         </div>
 
         {/* BODY */}
-        <div className="px-5 py-5">
+        <div className="px-5 py-5 space-y-3">
+
           {description && (
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {description}
             </p>
           )}
+
+          {children}
+
         </div>
 
         {/* FOOTER */}
-        <div className="px-5 py-4 border-t border-slate-700 flex justify-end gap-3">
+        <div className="px-5 py-4 border-t border-border flex justify-end gap-3">
 
-          <button
+          <Button
+            variant="outline"
             onClick={onCancel}
-            className="
-              px-4 py-2 rounded-md
-              bg-slate-700 hover:bg-slate-600
-              text-white
-              transition
-            "
+            disabled={loading}
           >
             {cancelText}
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="danger"
             onClick={onConfirm}
-            className="
-              px-4 py-2 rounded-md
-              bg-red-600 hover:bg-red-700
-              text-white font-semibold
-              transition
-            "
+            disabled={loading}
           >
             {confirmText}
-          </button>
+          </Button>
 
         </div>
 
-      </div>
+      </Surface>
     </div>
   )
 }

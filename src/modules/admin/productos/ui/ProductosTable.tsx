@@ -16,6 +16,7 @@ import { Skeleton } from '@/shared/ui/skeleton/skeleton'
 
 type Props = {
   productos: Producto[]
+  proveedorMap: Map<string, string>
   loading?: boolean
   canEdit: boolean
   onEdit: (producto: Producto) => void
@@ -24,19 +25,22 @@ type Props = {
 
 export default function ProductosTable({
   productos,
+  proveedorMap,
   loading = false,
   canEdit,
   onEdit,
   onToggle,
 }: Props) {
-  const getProveedorNombre = (proveedor?: string) => {
-    if (!proveedor) return '—'
-    return proveedor
+
+  const getProveedorNombre = (proveedorId?: string) => {
+    if (!proveedorId) return '—'
+    return proveedorMap.get(proveedorId) ?? '—'
   }
 
   return (
     <Table>
       <TableContent>
+
         <TableHeader>
           <TableRow>
             <TableHead>Código</TableHead>
@@ -53,6 +57,7 @@ export default function ProductosTable({
         </TableHeader>
 
         <TableBody>
+
           {/* Loading */}
           {loading &&
             Array.from({ length: 6 }).map((_, i) => (
@@ -82,6 +87,7 @@ export default function ProductosTable({
                 key={prod.id}
                 className={!prod.activo ? 'bg-muted/20' : ''}
               >
+
                 {/* Código */}
                 <TableCell className="text-muted-foreground font-mono">
                   {prod.codigo || '—'}
@@ -122,6 +128,7 @@ export default function ProductosTable({
                 <TableCell className="w-[200px]">
                   {canEdit && (
                     <div className="flex justify-end gap-2">
+
                       {/* Editar */}
                       <Button
                         variant="ghost"
@@ -131,28 +138,33 @@ export default function ProductosTable({
                         Editar
                       </Button>
 
-                      {/* Toggle (MISMO variant SIEMPRE) */}
+                      {/* Toggle */}
                       <Button
                         variant="outline"
                         size="sm"
                         className={`
-    w-[110px] 
-    justify-center
-    ${prod.activo
-                            ? 'text-danger border-danger/40 hover:bg-danger/10'
-                            : 'text-success border-success/40 hover:bg-success/10'
+                          w-[110px] 
+                          justify-center
+                          ${
+                            prod.activo
+                              ? 'text-danger border-danger/40 hover:bg-danger/10'
+                              : 'text-success border-success/40 hover:bg-success/10'
                           }
-  `}
+                        `}
                         onClick={() => onToggle(prod)}
                       >
                         {prod.activo ? 'Desactivar' : 'Reactivar'}
                       </Button>
+
                     </div>
                   )}
                 </TableCell>
+
               </TableRow>
             ))}
+
         </TableBody>
+
       </TableContent>
     </Table>
   )
